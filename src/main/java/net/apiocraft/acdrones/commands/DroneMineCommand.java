@@ -2,7 +2,7 @@ package net.apiocraft.acdrones.commands;
 
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
-import net.apiocraft.acdrones.IDroneAccess;
+import net.apiocraft.acdrones.core.IDroneAccess;
 import net.minecraft.block.BlockState;
 
 import java.util.concurrent.CompletableFuture;

@@ -7,7 +7,8 @@ import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.apiocraft.acdrones.Acdrones;
-import net.apiocraft.acdrones.DroneBrain;
+import net.apiocraft.acdrones.accessories.base.DroneAccessorySlot;
+import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -31,7 +32,7 @@ public class DroneMenu extends AbstractComputerMenu {
 
     private DroneMenu(
             int id, Predicate<PlayerEntity> canUse, ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData menuData,
-            PlayerInventory playerInventory, Inventory inventory, PropertyDelegate data
+            PlayerInventory playerInventory, Inventory inventory, Inventory droneAccessories, PropertyDelegate data
     ) {
         super(Acdrones.DRONE_MENU, id, canUse, family, computer, menuData);
         this.data = data;
@@ -54,20 +55,23 @@ public class DroneMenu extends AbstractComputerMenu {
             addSlot(new Slot(playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5));
         }
 
+        // Drone accessories
+        addSlot(new DroneAccessorySlot(droneAccessories, 0, DRONE_START_X + 1 + (3*18), PLAYER_START_Y + 19 + 18));
+
     }
 
     public static DroneMenu ofBrain(int id, PlayerInventory player, DroneBrain drone) {
         return new DroneMenu(
                 // Laziness in turtle.getOwner() is important here!
                 id, p -> drone.getOwner().canPlayerUse(p), ComputerFamily.ADVANCED, drone.getOwner().createServerComputer(), null,
-                player, drone.getInventory(), (SingleContainerData) drone::getSelectedSlot
+                player, drone.getInventory(), drone.getAccessoryInventory(), (SingleContainerData) drone::getSelectedSlot
         );
     }
 
     public static DroneMenu ofMenuData(int id, PlayerInventory player, ComputerContainerData data) {
         return new DroneMenu(
                 id, x -> true, data.family(), null, data,
-                player, new SimpleInventory(ComputerDroneEntity.INVENTORY_SIZE), new ArrayPropertyDelegate(1)
+                player, new SimpleInventory(ComputerDroneEntity.INVENTORY_SIZE), new SimpleInventory(1), new ArrayPropertyDelegate(1)
         );
     }
 
@@ -102,10 +106,10 @@ public class DroneMenu extends AbstractComputerMenu {
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int slotNum) {
-        if (slotNum >= 0 && slotNum < 16) {
-            return tryItemMerge(player, slotNum, 16, 52, true);
+        if (slotNum >= 0 && slotNum < 4) {
+            return tryItemMerge(player, slotNum, 4, 40, true);
         } else if (slotNum >= 16) {
-            return tryItemMerge(player, slotNum, 0, 16, false);
+            return tryItemMerge(player, slotNum, 0, 4, false);
         }
         return ItemStack.EMPTY;
     }

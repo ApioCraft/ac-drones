@@ -2,7 +2,7 @@ package net.apiocraft.acdrones.commands;
 
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
-import net.apiocraft.acdrones.IDroneAccess;
+import net.apiocraft.acdrones.core.IDroneAccess;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class DroneLidarCommand implements DroneCommand {
     private final double x;
-    private final double y;
+    private double y;
     private static final double MAX_DISTANCE = 100.0; // Maximum scan distance
 
     public DroneLidarCommand(double x, double y) {
@@ -28,6 +28,9 @@ public class DroneLidarCommand implements DroneCommand {
         // Calculate the ray direction based on x and y inputs
         // Start with a downward vector (shooting from bottom of drone)
         Vec3d baseRayDir = Vec3d.of(Direction.DOWN.getVector());
+
+        // make sure y is within bounds (-180 to 90)
+        y = Math.min(90, Math.max(-180, y));
 
         // Rotate this vector based on x and y inputs
         Vec3d rayDir = baseRayDir

@@ -9,10 +9,13 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.ComponentMap;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
-import net.apiocraft.acdrones.Acdrones;
-import net.apiocraft.acdrones.DroneBrain;
-import net.apiocraft.acdrones.DroneInventory;
+import net.apiocraft.acdrones.*;
+import net.apiocraft.acdrones.core.DroneBrain;
+import net.apiocraft.acdrones.core.IDroneAccessory;
+import net.apiocraft.acdrones.inventory.AccessoryInventory;
+import net.apiocraft.acdrones.inventory.DroneInventory;
 import net.apiocraft.acdrones.menu.DroneMenu;
+import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -36,6 +39,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -48,8 +52,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private static final String NBT_HOVERING = "Hovering";
 
     private static final String NBT_SELECTED_SLOT = "SelectedSlot";
+    private static final String NBT_ACCESSORY = "Accessory";
     private static final TrackedData<Boolean> on = DataTracker.registerData(ComputerDroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private final DroneInventory inventory = new DroneInventory(this);
+
+    private final DroneInventory inventory;
     public boolean hovering = false;
     protected @Nullable String label = null;
     private int computerId = -1;
@@ -59,12 +65,21 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private int selectedSlot = 0;
 
 
+    //private IDroneAccessory accessory;
+
+    private static final TrackedData<Optional<IDroneAccessory>> accessory = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
+
+    private final AccessoryInventory accessoryInventory;
+
+
+
     private final DroneBrain brain = new DroneBrain(this);
     private Vec3d lastVelocity = Vec3d.ZERO;
 
     public ComputerDroneEntity(EntityType<? extends ComputerDroneEntity> type, World world) {
         super(type, world);
-        setCustomNameVisible(true);
+        inventory = new DroneInventory(this);
+        accessoryInventory = new AccessoryInventory(this.brain);
     }
 
     public static DefaultAttributeContainer.Builder createComputerDroneAttributes() {
@@ -88,6 +103,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 end += 360;
             }
         }
+
 
         // Interpolate it.
         float value = (start + ((end - start) * amount));
@@ -227,7 +243,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         builder.add(on, false);
+        builder.add(accessory, Optional.empty());
     }
+
+
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {
@@ -239,6 +258,13 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         dataTracker.set(on, startByTurningTheHellOn);
         hovering = nbt.contains(NBT_HOVERING) && nbt.getBoolean(NBT_HOVERING);
         selectedSlot = nbt.contains(NBT_SELECTED_SLOT) ? nbt.getInt(NBT_SELECTED_SLOT) : 0;
+        dataTracker.set(accessory, (nbt.contains(NBT_ACCESSORY) ? Optional.of(DroneAccessoryRegistry.createFromNbt(nbt.getCompound(NBT_ACCESSORY))) : Optional.empty()));
+        // if the accessory exists, set the drone
+        if(dataTracker.get(accessory).isPresent()) {
+            getAccessory().setDrone(brain);
+        }
+        NbtCompound accessoryInventoryNbt = nbt.getCompound("AccessoryInventory");
+
 
 
     }
@@ -251,8 +277,15 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         if (label != null) nbt.putString(NBT_LABEL, label);
         if (dataTracker.get(on)) nbt.putBoolean(NBT_ON, true);
         if (hovering) nbt.putBoolean(NBT_HOVERING, true);
+        if(dataTracker.get(accessory).isPresent()) {
+            // forgive my warcrime
+            NbtCompound accessoryNbt = getAccessory().toNbt();
+            accessoryNbt.putString("id", DroneAccessoryRegistry.getId(getAccessory()).toString());
+            nbt.put(NBT_ACCESSORY, accessoryNbt);
+        }
 
         nbt.putInt(NBT_SELECTED_SLOT, selectedSlot);
+
     }
 
     public final ServerComputer createServerComputer() {
@@ -335,4 +368,25 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     }
 
 
+    public IDroneAccessory getAccessory() {
+        var a = dataTracker.get(accessory);
+        return a.orElse(null);
+    }
+
+    public void setAccessory(IDroneAccessory accessory) {
+        if(accessory != null) {
+            accessory.setDrone(brain);
+            dataTracker.set(ComputerDroneEntity.accessory, Optional.of(accessory));
+        } else {
+            dataTracker.set(ComputerDroneEntity.accessory, Optional.empty());
+        }
+    }
+
+    public AccessoryInventory getAccessoryInventory() {
+        return accessoryInventory;
+    }
+
+    public TrackedData<Optional<IDroneAccessory>> getTrackedAccessory() {
+        return accessory;
+    }
 }

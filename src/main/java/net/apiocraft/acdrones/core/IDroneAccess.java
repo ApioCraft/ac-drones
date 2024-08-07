@@ -1,9 +1,9 @@
-package net.apiocraft.acdrones;
+package net.apiocraft.acdrones.core;
 
 import dan200.computercraft.api.lua.MethodResult;
+import net.apiocraft.acdrones.inventory.AccessoryInventory;
+import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
-import net.minecraft.block.ShapeContext;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -31,4 +31,8 @@ public interface IDroneAccess {
     void setSelectedSlot(int slot);
 
     ComputerDroneEntity getEntity();
+
+    IDroneAccessory getAccessory();
+
+    AccessoryInventory getAccessoryInventory();
 }

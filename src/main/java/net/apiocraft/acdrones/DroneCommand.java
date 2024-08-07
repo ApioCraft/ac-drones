@@ -1,5 +1,7 @@
 package net.apiocraft.acdrones;
 
+import net.apiocraft.acdrones.core.IDroneAccess;
+
 import java.util.concurrent.CompletableFuture;
 
 public interface DroneCommand {

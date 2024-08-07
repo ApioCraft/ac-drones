@@ -1,15 +1,11 @@
 package net.apiocraft.acdrones.commands;
 
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.TurtleAnimation;
-import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.platform.ContainerTransfer;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
-import net.apiocraft.acdrones.IDroneAccess;
+import net.apiocraft.acdrones.core.IDroneAccess;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.predicate.entity.EntityPredicates;

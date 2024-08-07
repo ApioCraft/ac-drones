@@ -1,11 +1,14 @@
-package net.apiocraft.acdrones;
+package net.apiocraft.acdrones.core;
 
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.apiocraft.acdrones.inventory.AccessoryInventory;
+import net.apiocraft.acdrones.DroneCommand;
+import net.apiocraft.acdrones.DroneCommandResult;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
-import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.MovementType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.server.world.ServerWorld;
@@ -49,6 +52,8 @@ public class DroneBrain implements IDroneAccess {
     public ComputerDroneEntity getOwner() {
         return drone;
     }
+
+    private IDroneAccessory _cachedAccessory = null;
 
     private static final class DroneCommandCallback implements ILuaCallback {
         final MethodResult eventPull = MethodResult.pullEvent("drone_command_result", this);
@@ -136,10 +141,28 @@ public class DroneBrain implements IDroneAccess {
         return drone;
     }
 
+    @Override
+    public IDroneAccessory getAccessory() {
+        return drone.getAccessory();
+    }
+
+    @Override
+    public AccessoryInventory getAccessoryInventory() {
+        return drone.getAccessoryInventory();
+    }
+
     public void update() {
         if(!getLevel().isClient()) {
 
             var computer = drone.getServerComputer();
+
+            if(computer != null) {
+                if(_cachedAccessory != drone.getAccessory()) {
+                    _cachedAccessory = drone.getAccessory();
+                    computer.setPeripheral(ComputerSide.BOTTOM, _cachedAccessory);
+                }
+            }
+
             if(computer != null && !computer.getMainThreadMonitor().canWork()) {
                 System.out.println("Cannot work");
                 return;

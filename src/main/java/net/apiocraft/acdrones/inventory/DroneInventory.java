@@ -1,4 +1,4 @@
-package net.apiocraft.acdrones;
+package net.apiocraft.acdrones.inventory;
 
 import dan200.computercraft.shared.container.BasicContainer;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
