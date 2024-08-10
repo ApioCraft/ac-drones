@@ -9,6 +9,7 @@ import net.apiocraft.acdrones.core.IDroneAccess;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
 import net.apiocraft.acdrones.items.AccessoryItem;
+import net.apiocraft.acdrones.items.DroneItem;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.apiocraft.acdrones.registries.DroneAccessoryTypes;
@@ -47,6 +48,8 @@ public class Acdrones implements ModInitializer {
 
     public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(AccessoryItem.create(Identifier.of(MOD_ID, "claw")), "drone_claw");
 
+    public static final Item COMPUTER_DRONE_ITEM = registerItem(new DroneItem(new Item.Settings().maxCount(1)), "computer_drone");
+
     public static final ComputerComponent<IDroneAccess> DRONE = ComputerComponent.create(MOD_ID, "drone");
 
     public static final TrackedDataHandler<Optional<IDroneAccessory>> DRONE_ACCESSORY_HANDLER = TrackedDataHandler.create(DroneAccessoryTypes.OPTIONAL_CODEC);
@@ -61,6 +64,11 @@ public class Acdrones implements ModInitializer {
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
                 .register((itemGroup) -> itemGroup.add(DRONE_ACCESSORY_CLAW_ITEM));
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
+                .register((itemGroup) -> itemGroup.add(COMPUTER_DRONE_ITEM));
+
+
 
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
 

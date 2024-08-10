@@ -36,6 +36,8 @@ public class DroneClawAccessoryRenderer implements IAccessoryRenderer {
         if(accessory == null) return;
         //System.out.println(accessory.getCarryData());
 
+        model.rotato(accessory);
+
         matrices.push();
         matrices.translate(0, 0.5, 0);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180));

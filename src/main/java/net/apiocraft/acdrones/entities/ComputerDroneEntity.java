@@ -1,6 +1,7 @@
 package net.apiocraft.acdrones.entities;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
@@ -9,11 +10,13 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.ComponentMap;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.NonNegativeId;
 import net.apiocraft.acdrones.*;
 import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.inventory.AccessoryInventory;
 import net.apiocraft.acdrones.inventory.DroneInventory;
+import net.apiocraft.acdrones.items.DroneItem;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.minecraft.entity.Entity;
@@ -34,6 +37,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -73,11 +77,12 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
 
 
-    private final DroneBrain brain = new DroneBrain(this);
+    private final DroneBrain brain;
     private Vec3d lastVelocity = Vec3d.ZERO;
 
     public ComputerDroneEntity(EntityType<? extends ComputerDroneEntity> type, World world) {
         super(type, world);
+        brain = new DroneBrain(this);
         inventory = new DroneInventory(this);
         accessoryInventory = new AccessoryInventory(this.brain);
     }
@@ -204,8 +209,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
+        System.out.println("Interacting with drone");
         if (player.isSneaking()) {
             if (!getWorld().isClient()) {
+                System.out.println("not on client, so we turn on and open gui");
                 var serverComputer = createServerComputer();
                 serverComputer.turnOn();
                 //player.openHandledScreen(this);
@@ -213,6 +220,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
             return ActionResult.SUCCESS;
         } else {
+            System.out.println("not sneaking");
             // is the player riding already? if so, open gui
             if (player.hasVehicle()) {
                 if (!getWorld().isClient()) {
@@ -228,6 +236,27 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
 
         }
+    }
+
+    @Override
+    public boolean isAttackable() {
+        return true;
+    }
+
+    @Override
+    public boolean handleAttack(Entity attacker) {
+        if(attacker instanceof PlayerEntity) {
+            if(!getWorld().isClient()) {
+                ItemScatterer.spawn(getWorld(), getBlockPos(), getInventory());
+                ItemScatterer.spawn(getWorld(), getBlockPos(), getAccessoryInventory());
+                ItemStack i = new ItemStack(Acdrones.COMPUTER_DRONE_ITEM);
+                i.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerId));
+
+                ItemScatterer.spawn(getWorld(), getBlockPos().getX(), getBlockPos().getY() + 1, getBlockPos().getZ(), i);
+                remove(RemovalReason.KILLED);
+            }
+        }
+        return true;
     }
 
     @Override
@@ -388,5 +417,21 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     public TrackedData<Optional<IDroneAccessory>> getTrackedAccessory() {
         return accessory;
+    }
+
+    public void setComputerId(int computerId) {
+        this.computerId = computerId;
+    }
+
+    public int getComputerId() {
+        return computerId;
+    }
+
+    public void setLabel(String customName) {
+        this.label = customName;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }
