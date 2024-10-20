@@ -8,7 +8,6 @@ import net.apiocraft.acdrones.apis.DroneAPI;
 import net.apiocraft.acdrones.core.IDroneAccess;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
-import net.apiocraft.acdrones.items.AccessoryItem;
 import net.apiocraft.acdrones.items.DroneItem;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
@@ -46,7 +45,7 @@ public class Acdrones implements ModInitializer {
             ContainerData.toType(ComputerContainerData.STREAM_CODEC, DroneMenu::ofMenuData)
     );
 
-    public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(AccessoryItem.create(Identifier.of(MOD_ID, "claw")), "drone_claw");
+    public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(new Item(new Item.Settings()), "drone_claw");
 
     public static final Item COMPUTER_DRONE_ITEM = registerItem(new DroneItem(new Item.Settings().maxCount(1)), "computer_drone");
 

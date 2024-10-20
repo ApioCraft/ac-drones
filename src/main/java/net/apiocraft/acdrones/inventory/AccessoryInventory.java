@@ -1,7 +1,6 @@
 package net.apiocraft.acdrones.inventory;
 
 import net.apiocraft.acdrones.core.IDroneAccess;
-import net.apiocraft.acdrones.items.AccessoryItem;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -58,9 +57,8 @@ public class AccessoryInventory implements Inventory {
     public void setStack(int slot, ItemStack stack) {
         if(slot == 0) {
             System.out.println(stack.getItem().getClass());
-            if(stack.getItem() instanceof AccessoryItem item) {
-                System.out.println("i'll set the accessory (" + item.createAccessory() + ")");
-                drone.getEntity().setAccessory(item.createAccessory());
+            if(DroneAccessoryRegistry.isAccessory(stack)) {
+                drone.getEntity().setAccessory(DroneAccessoryRegistry.createAccessory(stack));
             } else {
                 drone.getEntity().setAccessory(null);
             }
@@ -84,7 +82,7 @@ public class AccessoryInventory implements Inventory {
 
     @Override
     public boolean isValid(int slot, ItemStack stack) {
-        return slot == 0 && stack.getItem() instanceof AccessoryItem;
+        return slot == 0 && DroneAccessoryRegistry.isAccessory(stack);
     }
 
 

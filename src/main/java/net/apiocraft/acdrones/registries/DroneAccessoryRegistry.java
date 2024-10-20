@@ -76,6 +76,15 @@ public class DroneAccessoryRegistry {
         return null;
     }
 
+    public static boolean isAccessory(ItemStack stack) {
+        for (Item item : ACCESSORY_ITEM_LOOKUP.values()) {
+            if (stack.getItem() == item) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static Identifier getId(IDroneAccessory accessory) {
         DroneAccessoryFactory factory = ACCESSORY_TYPE_TO_FACTORY.get(accessory.getClass());

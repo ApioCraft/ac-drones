@@ -1,6 +1,6 @@
 package net.apiocraft.acdrones.accessories.base;
 
-import net.apiocraft.acdrones.items.AccessoryItem;
+import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -12,7 +12,7 @@ public class DroneAccessorySlot extends Slot {
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return stack.getItem() instanceof AccessoryItem &&
+        return DroneAccessoryRegistry.isAccessory(stack) &&
                 inventory.getStack(0).isEmpty();
     }
 
