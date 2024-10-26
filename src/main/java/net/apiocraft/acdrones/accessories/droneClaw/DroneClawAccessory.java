@@ -3,6 +3,7 @@ package net.apiocraft.acdrones.accessories.droneClaw;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.apiocraft.acdrones.core.DroneAccessoryAttachment;
 import net.apiocraft.acdrones.core.DroneAccessoryType;
 import net.apiocraft.acdrones.core.IDroneAccess;
 import net.apiocraft.acdrones.core.IDroneAccessory;
@@ -143,6 +144,11 @@ public class DroneClawAccessory implements IDroneAccessory {
     @Override
     public DroneAccessoryType<?> getAccessoryType() {
         return DroneAccessoryTypes.DRONE_CLAW;
+    }
+
+    @Override
+    public DroneAccessoryAttachment getAttachmentType() {
+        return DroneAccessoryAttachment.BOTTOM;
     }
 
     @Override

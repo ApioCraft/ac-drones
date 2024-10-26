@@ -11,6 +11,9 @@ public interface IDroneAccessory extends IPeripheral {
 
     DroneAccessoryType<?> getAccessoryType();
 
+    // TODO: better name because this is retarded
+    DroneAccessoryAttachment getAttachmentType();
+
     void setDrone(IDroneAccess drone);
 
 

@@ -1,6 +1,7 @@
 package net.apiocraft.acdrones.entities;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -15,6 +16,7 @@ import net.apiocraft.acdrones.*;
 import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.inventory.AccessoryInventory;
+import net.apiocraft.acdrones.inventory.AttachmentInventory;
 import net.apiocraft.acdrones.inventory.DroneInventory;
 import net.apiocraft.acdrones.items.DroneItem;
 import net.apiocraft.acdrones.menu.DroneMenu;
@@ -43,6 +45,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -75,6 +78,15 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     private final AccessoryInventory accessoryInventory;
 
+    // TODO: suppport a dynamic number of attachments
+    // I gave the hell up trying to get arrays to work with datatrackers
+    // i'll make it later... probably
+    // for now, excuse me for this abomination
+    private static final TrackedData<Optional<IDroneAccessory>> attachment_1 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
+    private static final TrackedData<Optional<IDroneAccessory>> attachment_2 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
+
+    private final AttachmentInventory attachmentInventory;
+
 
 
     private final DroneBrain brain;
@@ -85,6 +97,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         brain = new DroneBrain(this);
         inventory = new DroneInventory(this);
         accessoryInventory = new AccessoryInventory(this.brain);
+        attachmentInventory = new AttachmentInventory(this.brain);
     }
 
     public static DefaultAttributeContainer.Builder createComputerDroneAttributes() {
@@ -94,17 +107,15 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     public static float lerpDegrees(float start, float end, float amount)
     {
         float difference = Math.abs(end - start);
+        // i know, i know, now shut, it's fine
         if (difference > 180)
         {
-            // We need to add on to one of the values.
             if (end > start)
             {
-                // We'll add it on to start...
                 start += 360;
             }
             else
             {
-                // Add it on to end.
                 end += 360;
             }
         }
@@ -150,7 +161,6 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             applyGravity();
             // drag
             setVelocity(getVelocity().multiply(0.9, 0.9, 0.9));
-            // if there is a entity on top of us, move it too!
 
 
             computer.keepAlive();
@@ -273,6 +283,8 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     protected void initDataTracker(DataTracker.Builder builder) {
         builder.add(on, false);
         builder.add(accessory, Optional.empty());
+        builder.add(attachment_1, Optional.empty());
+        builder.add(attachment_2, Optional.empty());
     }
 
 
@@ -292,6 +304,17 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         if(dataTracker.get(accessory).isPresent()) {
             getAccessory().setDrone(brain);
         }
+        // now the same for all the attachments
+        dataTracker.set(attachment_1, (nbt.contains("Attachment1") ? Optional.of(DroneAccessoryRegistry.createFromNbt(nbt.getCompound("Attachment1"))) : Optional.empty()));
+        if(dataTracker.get(attachment_1).isPresent()) {
+            getAccessoryAttachment(0).setDrone(brain);
+        }
+        dataTracker.set(attachment_2, (nbt.contains("Attachment2") ? Optional.of(DroneAccessoryRegistry.createFromNbt(nbt.getCompound("Attachment2"))) : Optional.empty()));
+        if(dataTracker.get(attachment_2).isPresent()) {
+            getAccessoryAttachment(1).setDrone(brain);
+        }
+
+        // I don't even remember why this is here
         NbtCompound accessoryInventoryNbt = nbt.getCompound("AccessoryInventory");
 
 
@@ -312,6 +335,17 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             accessoryNbt.putString("id", DroneAccessoryRegistry.getId(getAccessory()).toString());
             nbt.put(NBT_ACCESSORY, accessoryNbt);
         }
+        if(dataTracker.get(attachment_1).isPresent()) {
+            NbtCompound accessoryNbt = getAccessoryAttachment(0).toNbt();
+            accessoryNbt.putString("id", DroneAccessoryRegistry.getId(getAccessoryAttachment(0)).toString());
+            nbt.put("Attachment1", accessoryNbt);
+        }
+        if(dataTracker.get(attachment_2).isPresent()) {
+            NbtCompound accessoryNbt = getAccessoryAttachment(1).toNbt();
+            accessoryNbt.putString("id", DroneAccessoryRegistry.getId(getAccessoryAttachment(1)).toString());
+            nbt.put("Attachment2", accessoryNbt);
+        }
+
 
         nbt.putInt(NBT_SELECTED_SLOT, selectedSlot);
 
@@ -345,7 +379,13 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     private void updateInputsImmediately(ServerComputer computer) {
         for (var direction : DirectionUtil.FACINGS) {
-            computer.setPeripheral(DirectionUtil.toLocal(Direction.EAST, direction), null);
+            if (DirectionUtil.toLocal(Direction.EAST, direction) == ComputerSide.TOP) {
+                computer.setPeripheral(DirectionUtil.toLocal(Direction.UP, direction), getAccessoryAttachment(0));
+            } else if (DirectionUtil.toLocal(Direction.EAST, direction) == ComputerSide.BACK) {
+                computer.setPeripheral(DirectionUtil.toLocal(Direction.EAST, direction), getAccessoryAttachment(1));
+            } else {
+                computer.setPeripheral(DirectionUtil.toLocal(Direction.EAST, direction), null);
+            }
         }
     }
 
@@ -411,6 +451,52 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         }
     }
 
+    public IDroneAccessory[] getAccessoryAttachments() {
+        return new IDroneAccessory[] {
+            dataTracker.get(attachment_1).orElse(null),
+            dataTracker.get(attachment_2).orElse(null),
+        };
+    }
+
+    public IDroneAccessory getAccessoryAttachment(int index) {
+        switch(index) {
+            case 0:
+                return dataTracker.get(attachment_1).orElse(null);
+            case 1:
+                return dataTracker.get(attachment_2).orElse(null);
+        }
+        return null;
+    }
+
+    public void setAccessoryAttachment(int slot, IDroneAccessory accessory) {
+        if(accessory != null) {
+            accessory.setDrone(brain);
+            switch(slot) {
+                case 0:
+                    accessory.setDrone(brain);
+                    dataTracker.set(attachment_1, Optional.of(accessory));
+                    updateInputsImmediately(createServerComputer());
+                    break;
+                case 1:
+                    accessory.setDrone(brain);
+                    dataTracker.set(attachment_2, Optional.of(accessory));
+                    updateInputsImmediately(createServerComputer());
+                    break;
+            }
+        } else {
+            switch(slot) {
+                case 0:
+                    dataTracker.set(attachment_1, Optional.empty());
+                    break;
+                case 1:
+                    dataTracker.set(attachment_2, Optional.empty());
+                    break;
+            }
+        }
+    }
+
+
+
     public AccessoryInventory getAccessoryInventory() {
         return accessoryInventory;
     }
@@ -433,5 +519,9 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     public String getLabel() {
         return label;
+    }
+
+    public AttachmentInventory getAttachmentInventory() {
+        return attachmentInventory;
     }
 }

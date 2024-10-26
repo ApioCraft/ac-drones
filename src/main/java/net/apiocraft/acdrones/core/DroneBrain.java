@@ -9,6 +9,7 @@ import net.apiocraft.acdrones.inventory.AccessoryInventory;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
+import net.apiocraft.acdrones.inventory.AttachmentInventory;
 import net.minecraft.entity.MovementType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.server.world.ServerWorld;
@@ -149,6 +150,26 @@ public class DroneBrain implements IDroneAccess {
     @Override
     public AccessoryInventory getAccessoryInventory() {
         return drone.getAccessoryInventory();
+    }
+
+    @Override
+    public IDroneAccessory[] getAccessoryAttachments() {
+        return drone.getAccessoryAttachments();
+    }
+
+    @Override
+    public IDroneAccessory getAccessoryAttachment(int index) {
+        return drone.getAccessoryAttachment(index);
+    }
+
+    @Override
+    public void setAccessoryAttachment(int index, IDroneAccessory accessory) {
+        drone.setAccessoryAttachment(index, accessory);
+    }
+
+    @Override
+    public AttachmentInventory getAttachmentInventory() {
+        return drone.getAttachmentInventory();
     }
 
     public void update() {

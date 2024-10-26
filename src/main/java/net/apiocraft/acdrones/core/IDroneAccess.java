@@ -4,6 +4,7 @@ import dan200.computercraft.api.lua.MethodResult;
 import net.apiocraft.acdrones.inventory.AccessoryInventory;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
+import net.apiocraft.acdrones.inventory.AttachmentInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -35,4 +36,12 @@ public interface IDroneAccess {
     IDroneAccessory getAccessory();
 
     AccessoryInventory getAccessoryInventory();
+
+    IDroneAccessory[] getAccessoryAttachments();
+
+    IDroneAccessory getAccessoryAttachment(int index);
+
+    void setAccessoryAttachment(int index, IDroneAccessory accessory);
+
+    AttachmentInventory getAttachmentInventory();
 }
