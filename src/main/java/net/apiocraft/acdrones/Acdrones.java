@@ -76,6 +76,7 @@ public class Acdrones implements ModInitializer {
 
     }
 
+
     public static Item registerItem(Item item, String id) {
         // Create the identifier for the item.
         Identifier itemID = Identifier.of(MOD_ID, id);

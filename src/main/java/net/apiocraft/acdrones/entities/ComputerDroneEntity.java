@@ -36,13 +36,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -52,6 +55,8 @@ import java.util.UUID;
 
 public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFactory {
     public static final int INVENTORY_SIZE = 4; // a drone will only have a few inventory slots
+
+    private ChunkPos lastChunkPos;
 
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
@@ -104,6 +109,19 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         return DefaultAttributeContainer.builder().add(EntityAttributes.GENERIC_MAX_HEALTH).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).add(EntityAttributes.GENERIC_MOVEMENT_SPEED).add(EntityAttributes.GENERIC_ARMOR).add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).add(EntityAttributes.GENERIC_MAX_ABSORPTION).add(EntityAttributes.GENERIC_STEP_HEIGHT).add(EntityAttributes.GENERIC_SCALE).add(EntityAttributes.GENERIC_GRAVITY).add(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).add(EntityAttributes.GENERIC_FALL_DAMAGE_MULTIPLIER).add(EntityAttributes.GENERIC_JUMP_STRENGTH).add(EntityAttributes.GENERIC_OXYGEN_BONUS).add(EntityAttributes.GENERIC_BURNING_TIME).add(EntityAttributes.GENERIC_EXPLOSION_KNOCKBACK_RESISTANCE).add(EntityAttributes.GENERIC_WATER_MOVEMENT_EFFICIENCY).add(EntityAttributes.GENERIC_MOVEMENT_EFFICIENCY).add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
     }
 
+//    private void setupChunkloading() {
+//        if(!getWorld().isClient()) {
+//            ServerWorld sw = (ServerWorld) getWorld();
+//
+//            sw.getChunkManager().addTicket(
+//                    ChunkTicketType.PLAYER,
+//                    new ChunkPos(getBlockPos()),
+//                    1,
+//                    new ChunkPos(getBlockPos())
+//            );
+//        }
+//    }
+
     public static float lerpDegrees(float start, float end, float amount)
     {
         float difference = Math.abs(end - start);
@@ -141,6 +159,34 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     @Override
     public void tick() {
         super.tick();
+
+        if(!getWorld().isClient()) {
+            ServerWorld serverWorld = (ServerWorld) getWorld();
+            ChunkPos chunkPos = new ChunkPos(getBlockPos());
+            if(!chunkPos.equals(lastChunkPos)) {
+                System.out.println("Supposedly loading chunk");
+
+                // first load our chunk to not get unlodead
+                serverWorld.getChunkManager().addTicket(
+                        ChunkTicketType.FORCED,
+                        chunkPos,
+                        3,
+                        chunkPos
+                );
+
+                if(lastChunkPos != null) {
+                    serverWorld.getChunkManager().removeTicket(
+                            ChunkTicketType.FORCED,
+                            lastChunkPos,
+                            3,
+                            lastChunkPos
+                    );
+                }
+
+                lastChunkPos = chunkPos;
+            }
+        }
+
         //System.out.println(hasNoGravity());
         var movement = getMovement();
         move(MovementType.SELF, movement);
@@ -267,6 +313,18 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
         }
         return true;
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if(!getWorld().isClient() && lastChunkPos != null) {
+            ((ServerWorld)getWorld()).getChunkManager().removeTicket(
+                    ChunkTicketType.PLAYER,
+                    lastChunkPos,
+                    1,
+                    lastChunkPos
+            );
+        }
     }
 
     @Override
