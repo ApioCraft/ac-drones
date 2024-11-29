@@ -2,6 +2,7 @@ package net.apiocraft.acdrones.registries;
 
 import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.accessories.defaultAccessories.modem.DroneModemAccessory;
+import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.DroneAccessoryType;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.accessories.droneClaw.DroneClawAccessory;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class DroneAccessoryTypes {
     public static final DroneAccessoryType<DroneClawAccessory> DRONE_CLAW = register("drone_claw", new DroneAccessoryType<>(DroneClawAccessory.CODEC));
     public static final DroneAccessoryType<DroneModemAccessory> DRONE_MODEM = register("drone_modem", new DroneAccessoryType<>(DroneModemAccessory.CODEC));
+    public static final DroneAccessoryType<DroneChunkloaderAccessory> DRONE_CHUNKLOADER = register("drone_chunkloader", new DroneAccessoryType<>(DroneChunkloaderAccessory.CODEC));
 
     public static <T extends IDroneAccessory> DroneAccessoryType<T> register(String id, DroneAccessoryType<T> accessoryType) {
         return Registry.register(DroneAccessoryType.REGISTRY, Identifier.of(Acdrones.MOD_ID, id), accessoryType);

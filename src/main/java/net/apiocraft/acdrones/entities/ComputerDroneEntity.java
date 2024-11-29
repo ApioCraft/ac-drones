@@ -13,6 +13,7 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NonNegativeId;
 import net.apiocraft.acdrones.*;
+import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.inventory.AccessoryInventory;
@@ -48,6 +49,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -160,7 +162,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     public void tick() {
         super.tick();
 
-        if(!getWorld().isClient()) {
+        if(!getWorld().isClient() && Arrays.stream(getAccessoryAttachments()).anyMatch(a -> a instanceof DroneChunkloaderAccessory)) {
             ServerWorld serverWorld = (ServerWorld) getWorld();
             ChunkPos chunkPos = new ChunkPos(getBlockPos());
             if(!chunkPos.equals(lastChunkPos)) {

@@ -47,6 +47,8 @@ public class Acdrones implements ModInitializer {
 
     public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(new Item(new Item.Settings()), "drone_claw");
 
+    public static final Item DRONE_ACCESSORY_CHUNKLOADER_ITEM = registerItem(new Item(new Item.Settings()), "drone_chunkloader");
+
     public static final Item COMPUTER_DRONE_ITEM = registerItem(new DroneItem(new Item.Settings().maxCount(1)), "computer_drone");
 
     public static final ComputerComponent<IDroneAccess> DRONE = ComputerComponent.create(MOD_ID, "drone");

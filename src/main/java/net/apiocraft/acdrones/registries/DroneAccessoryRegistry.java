@@ -3,6 +3,7 @@ package net.apiocraft.acdrones.registries;
 import dan200.computercraft.shared.ModRegistry;
 import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.accessories.defaultAccessories.modem.DroneModemAccessory;
+import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.accessories.droneClaw.DroneClawAccessory;
 import net.apiocraft.acdrones.accessories.factory.DroneAccessoryFactory;
@@ -103,4 +104,5 @@ public class DroneAccessoryRegistry {
     public static final DroneAccessoryFactory DRONE_ACCESSORY_CLAW = registerAccessory("claw", DroneClawAccessory::new, Acdrones.DRONE_ACCESSORY_CLAW_ITEM);
     public static final DroneAccessoryFactory DRONE_ATTACHMENT_MODEM = registerAccessory("modem", DroneModemAccessory::new, ModRegistry.Items.WIRELESS_MODEM_NORMAL.get());
     public static final DroneAccessoryFactory DRONE_ATTACHMENT_ADVANCED_MODEM = registerAccessory("advanced_modem", () -> new DroneModemAccessory(true), ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get());
+    public static final DroneAccessoryFactory DRONE_ATTACHMENT_CHUNKLOADER = registerAccessory("chunkloader", DroneChunkloaderAccessory::new, Acdrones.DRONE_ACCESSORY_CHUNKLOADER_ITEM);
 }
