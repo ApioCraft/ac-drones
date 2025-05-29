@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class DroneBrain implements IDroneAccess {
-    private ComputerDroneEntity drone;
+    private final ComputerDroneEntity drone;
 
     private record QueuedDroneCommand(int id, DroneCommand command) {
 

@@ -129,7 +129,7 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
     }
 
 
-    private Vec3d lastVelocity = Vec3d.ZERO;
+    private final Vec3d lastVelocity = Vec3d.ZERO;
 
     public void customRotate(ComputerDroneEntity entity, float counter) {
         Drone.pitch = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.pitch), entity.getPitch(), 0.3));

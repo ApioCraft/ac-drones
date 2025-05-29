@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.concurrent.CompletableFuture;
 
 public class DroneUseCommand implements DroneCommand {
-    private boolean canUse;
+    private final boolean canUse;
 
     public DroneUseCommand(boolean canUse) {
         this.canUse = canUse;
@@ -58,11 +58,7 @@ public class DroneUseCommand implements DroneCommand {
         var isProtected = replaceable
                 ? isBlockProtected(world, position, player) // we replace
                 : isBlockProtected(world, position.offset(side), player); // we put down block
-        if (isProtected) {
-            return false;
-        }
-
-        return true;
+        return !isProtected;
     }
 
     @Override

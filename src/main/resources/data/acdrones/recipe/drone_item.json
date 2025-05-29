@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "P P",
+    " B ",
+    "P P"
+  ],
+  "key":{
+    "P": {
+      "item": "acdrones:drone_propeller"
+    },
+    "B": {
+      "item": "acdrones:drone_body"
+    }
+  },
+  "result": {
+    "id": "acdrones:computer_drone",
+    "count": 1
+  }
+}

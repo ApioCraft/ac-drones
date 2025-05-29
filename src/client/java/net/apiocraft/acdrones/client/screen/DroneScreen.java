@@ -43,7 +43,7 @@ public class DroneScreen extends AbstractComputerScreen<DroneMenu> {
         boolean advanced = this.family == ComputerFamily.ADVANCED;
         Identifier texture = advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
         graphics.drawTexture(texture, this.x + 17, this.y, 0, 0.0F, 0.0F, 278, 217, 512, 512);
-        int slot = ((DroneMenu)this.getScreenHandler()).getSelectedSlot();
+        int slot = this.getScreenHandler().getSelectedSlot();
         if (slot >= 0) {
             int slotX = slot % 4;
             int slotY = slot / 4;

@@ -42,7 +42,7 @@ public class DroneSuckCommand implements DroneCommand {
         var blockPosition = drone.getEntity().getBlockPos().offset(direction);
         var side = direction.getOpposite();
 
-        var inventory = PlatformHelper.get().getContainer((ServerWorld) world, blockPosition, side);
+        var inventory = PlatformHelper.get().getContainer(world, blockPosition, side);
 
         if (inventory != null) {
             // Take from inventory of thing in front

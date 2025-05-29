@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import java.util.concurrent.CompletableFuture;
 
 public class DroneCompareCommand implements DroneCommand {
-    private int slot;
+    private final int slot;
 
     public DroneCompareCommand(int slot) {
         this.slot = slot;

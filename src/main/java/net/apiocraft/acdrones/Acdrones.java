@@ -15,6 +15,7 @@ import net.apiocraft.acdrones.registries.DroneAccessoryTypes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -34,50 +35,54 @@ public class Acdrones implements ModInitializer {
     public static final String MOD_ID = "acdrones";
 
     public static final EntityType<ComputerDroneEntity> COMPUTER_DRONE_ENTITY = Registry.register(
-            Registries.ENTITY_TYPE,
-            Identifier.of(MOD_ID, "computer_drone"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, ComputerDroneEntity::new).dimensions(EntityDimensions.fixed(0.75f, 0.25f)).build()
-    );
+            Registries.ENTITY_TYPE, Identifier.of(MOD_ID, "computer_drone"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MISC, ComputerDroneEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.75f, 0.25f)).build());
 
-    public static final ScreenHandlerType<DroneMenu> DRONE_MENU = Registry.register(
-            Registries.SCREEN_HANDLER,
+    public static final ScreenHandlerType<DroneMenu> DRONE_MENU = Registry.register(Registries.SCREEN_HANDLER,
             Identifier.of(MOD_ID, "drone_menu"),
-            ContainerData.toType(ComputerContainerData.STREAM_CODEC, DroneMenu::ofMenuData)
-    );
+            ContainerData.toType(ComputerContainerData.STREAM_CODEC, DroneMenu::ofMenuData));
 
     public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(new Item(new Item.Settings()), "drone_claw");
 
-    public static final Item DRONE_ACCESSORY_CHUNKLOADER_ITEM = registerItem(new Item(new Item.Settings()), "drone_chunkloader");
+    public static final Item DRONE_ACCESSORY_CHUNKLOADER_ITEM = registerItem(new Item(new Item.Settings()),
+            "drone_chunkloader");
 
-    public static final Item COMPUTER_DRONE_ITEM = registerItem(new DroneItem(new Item.Settings().maxCount(1)), "computer_drone");
+    public static final Item COMPUTER_DRONE_ITEM = registerItem(new DroneItem(new Item.Settings().maxCount(1)),
+            "computer_drone");
+
+    public static final Item DRONE_BODY_ITEM = registerItem(new Item(new Item.Settings()), "drone_body");
+    public static final Item DRONE_PROPELLER_ITEM = registerItem(new Item(new Item.Settings()), "drone_propeller");
 
     public static final ComputerComponent<IDroneAccess> DRONE = ComputerComponent.create(MOD_ID, "drone");
 
-    public static final TrackedDataHandler<Optional<IDroneAccessory>> DRONE_ACCESSORY_HANDLER = TrackedDataHandler.create(DroneAccessoryTypes.OPTIONAL_CODEC);
+    public static final TrackedDataHandler<Optional<IDroneAccessory>> DRONE_ACCESSORY_HANDLER = TrackedDataHandler
+            .create(DroneAccessoryTypes.OPTIONAL_CODEC);
 
     @Override
     public void onInitialize() {
-        DroneAccessoryRegistry.initialize();
-        ComputerCraftAPI.registerAPIFactory((computer) -> {
-            var drone = computer.getComponent(DRONE);
-            return drone != null ? new DroneAPI(drone) : null;
-        });
+        // DroneAccessoryRegistry.initialize();
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
-                .register((itemGroup) -> itemGroup.add(DRONE_ACCESSORY_CLAW_ITEM));
+                .register((itemGroup) -> {
+                    itemGroup.add(DRONE_ACCESSORY_CLAW_ITEM);
+                    itemGroup.add(DRONE_ACCESSORY_CHUNKLOADER_ITEM);
+                });
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
                 .register((itemGroup) -> itemGroup.add(COMPUTER_DRONE_ITEM));
 
-
-
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
+        FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
+            DroneAccessoryRegistry.initialize();
+            ComputerCraftAPI.registerAPIFactory((computer) -> {
+                var drone = computer.getComponent(DRONE);
+                return drone != null ? new DroneAPI(drone) : null;
+            });
+        });
 
         System.out.println(DroneAccessoryRegistry.DRONE_ACCESSORIES.getId(DroneAccessoryRegistry.DRONE_ACCESSORY_CLAW));
-
-
     }
-
 
     public static Item registerItem(Item item, String id) {
         // Create the identifier for the item.

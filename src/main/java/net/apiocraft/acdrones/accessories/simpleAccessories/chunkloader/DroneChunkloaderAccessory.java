@@ -63,9 +63,6 @@ public class DroneChunkloaderAccessory implements IDroneAccessory {
 
     @Override
     public boolean equals(@Nullable IPeripheral other) {
-        if (other instanceof DroneChunkloaderAccessory) {
-            return true;
-        }
-        return false;
+        return other instanceof DroneChunkloaderAccessory;
     }
 }

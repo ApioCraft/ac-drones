@@ -45,10 +45,11 @@ public class DroneAPI implements ILuaAPI {
         return MethodResult.of(drone.getSelectedSlot() + 1);
     }
 
-    @LuaFunction()
+    // for now, let's not.
+    /*@LuaFunction()
     public final MethodResult lidar(double x, double y) {
         return drone.executeCommand(new DroneLidarCommand(x, y));
-    }
+    }*/
 
     @LuaFunction()
     public final MethodResult suck(int quantity) {
@@ -72,7 +73,7 @@ public class DroneAPI implements ILuaAPI {
 
     @LuaFunction(mainThread = true)
     public final MethodResult getRotation() {
-        return MethodResult.of(new Object[] { drone.getEntity().getYaw(), drone.getEntity().getPitch() });
+        return MethodResult.of(drone.getEntity().getYaw(), drone.getEntity().getPitch());
     }
 
     @LuaFunction(mainThread = true)

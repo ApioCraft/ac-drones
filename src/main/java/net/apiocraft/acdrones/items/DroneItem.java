@@ -9,7 +9,6 @@ import dan200.computercraft.shared.util.DataComponentUtil;
 import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
@@ -32,18 +31,19 @@ public class DroneItem extends Item implements IMedia {
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();
 
-//        System.out.println("DroneItem.useOnBlock");
+        // System.out.println("DroneItem.useOnBlock");
 
         if (!world.isClient) {
             System.out.println("make an drone");
             ServerWorld serverWorld = (ServerWorld) world;
             ComputerDroneEntity drone = Acdrones.COMPUTER_DRONE_ENTITY.create(serverWorld);
-            if(context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()) != null) {
+            if (context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()) != null) {
                 drone.setComputerId(context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()).id());
             }
             System.out.println("drone has id too");
             drone.setLabel(DataComponentUtil.getCustomName(context.getStack()));
-            drone.refreshPositionAndAngles(context.getHitPos().x, context.getHitPos().y, context.getHitPos().z, drone.getYaw(), drone.getPitch());
+            drone.refreshPositionAndAngles(context.getHitPos().x, context.getHitPos().y, context.getHitPos().z,
+                    drone.getYaw(), drone.getPitch());
             drone.setVelocity(0, 0, 0);
             if (serverWorld.spawnEntity(drone)) {
 
@@ -76,6 +76,9 @@ public class DroneItem extends Item implements IMedia {
     @Override
     public @javax.annotation.Nullable Mount createDataMount(ItemStack stack, ServerWorld level) {
         var id = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
-        return id != null ? ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id.id(), Config.computerSpaceLimit) : null;
+        return id != null
+                ? ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id.id(),
+                        Config.computerSpaceLimit)
+                : null;
     }
 }

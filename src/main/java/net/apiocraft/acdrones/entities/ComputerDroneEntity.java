@@ -12,14 +12,13 @@ import dan200.computercraft.shared.util.ComponentMap;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NonNegativeId;
-import net.apiocraft.acdrones.*;
+import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.inventory.AccessoryInventory;
 import net.apiocraft.acdrones.inventory.AttachmentInventory;
 import net.apiocraft.acdrones.inventory.DroneInventory;
-import net.apiocraft.acdrones.items.DroneItem;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.minecraft.entity.Entity;
@@ -46,57 +45,44 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 
 public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFactory {
     public static final int INVENTORY_SIZE = 4; // a drone will only have a few inventory slots
-
-    private ChunkPos lastChunkPos;
-
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_HOVERING = "Hovering";
-
     private static final String NBT_SELECTED_SLOT = "SelectedSlot";
     private static final String NBT_ACCESSORY = "Accessory";
     private static final TrackedData<Boolean> on = DataTracker.registerData(ComputerDroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-
-    private final DroneInventory inventory;
-    public boolean hovering = false;
-    protected @Nullable String label = null;
-    private int computerId = -1;
-    private boolean startByTurningTheHellOn = false;
-    private UUID instanceID;
-    private boolean itsBrandNew;
-    private int selectedSlot = 0;
-
-
-    //private IDroneAccessory accessory;
-
     private static final TrackedData<Optional<IDroneAccessory>> accessory = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
-
-    private final AccessoryInventory accessoryInventory;
-
     // TODO: suppport a dynamic number of attachments
     // I gave the hell up trying to get arrays to work with datatrackers
     // i'll make it later... probably
     // for now, excuse me for this abomination
     private static final TrackedData<Optional<IDroneAccessory>> attachment_1 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
     private static final TrackedData<Optional<IDroneAccessory>> attachment_2 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
-
+    private final DroneInventory inventory;
+    private final AccessoryInventory accessoryInventory;
     private final AttachmentInventory attachmentInventory;
-
-
-
     private final DroneBrain brain;
+    public boolean hovering = false;
+    protected @Nullable String label = null;
+
+
+    //private IDroneAccessory accessory;
+    private ChunkPos lastChunkPos;
+    private int computerId = -1;
+    private boolean startByTurningTheHellOn = false;
+    private UUID instanceID;
+    private boolean itsBrandNew;
+    private int selectedSlot = 0;
     private Vec3d lastVelocity = Vec3d.ZERO;
 
     public ComputerDroneEntity(EntityType<? extends ComputerDroneEntity> type, World world) {
@@ -177,6 +163,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 );
 
                 if(lastChunkPos != null) {
+
                     serverWorld.getChunkManager().removeTicket(
                             ChunkTicketType.FORCED,
                             lastChunkPos,
@@ -210,7 +197,6 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             // drag
             setVelocity(getVelocity().multiply(0.9, 0.9, 0.9));
 
-
             computer.keepAlive();
 
             itsBrandNew = false;
@@ -238,7 +224,6 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         double horizontalSpeed = Math.sqrt(vel.getX() * vel.getX() + vel.getZ() * vel.getZ());
         double horizontalDeltaSpeed = Math.sqrt(deltaVel.getX() * deltaVel.getX() + deltaVel.getZ() * deltaVel.getZ());
 
-
         // Calculate target pitch (in degrees)
         double velocityWeight = 1;
         double deltaVelocityWeight = 0;
@@ -253,12 +238,12 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
         // Linear interpolation for yaw
         if (horizontalSpeed > 0.01) {
-            float newYaw = (float) lerpDegrees(currentYaw, (float) targetYaw, 0.25f);
+            float newYaw = lerpDegrees(currentYaw, (float) targetYaw, 0.25f);
             setYaw(newYaw);
         }
 
         // Linear interpolation for pitch
-        float newPitch = (float) lerpDegrees(currentPitch, (float) targetPitch, 0.25f);
+        float newPitch = lerpDegrees(currentPitch, (float) targetPitch, 0.25f);
         setPitch(newPitch);
 
         lastVelocity = new Vec3d(vel.getX(), vel.getY(), vel.getZ());
@@ -565,20 +550,20 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         return accessory;
     }
 
-    public void setComputerId(int computerId) {
-        this.computerId = computerId;
-    }
-
     public int getComputerId() {
         return computerId;
     }
 
-    public void setLabel(String customName) {
-        this.label = customName;
+    public void setComputerId(int computerId) {
+        this.computerId = computerId;
     }
 
     public String getLabel() {
         return label;
+    }
+
+    public void setLabel(String customName) {
+        this.label = customName;
     }
 
     public AttachmentInventory getAttachmentInventory() {
