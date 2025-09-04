@@ -148,6 +148,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     public void tick() {
         super.tick();
 
+        // TODO: get this the f* outta the drone entity
         if(!getWorld().isClient() && Arrays.stream(getAccessoryAttachments()).anyMatch(a -> a instanceof DroneChunkloaderAccessory)) {
             ServerWorld serverWorld = (ServerWorld) getWorld();
             ChunkPos chunkPos = new ChunkPos(getBlockPos());

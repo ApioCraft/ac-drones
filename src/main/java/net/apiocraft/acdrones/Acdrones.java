@@ -13,6 +13,8 @@ import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.apiocraft.acdrones.registries.DroneAccessoryTypes;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -73,6 +75,7 @@ public class Acdrones implements ModInitializer {
                 .register((itemGroup) -> itemGroup.add(COMPUTER_DRONE_ITEM));
 
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
+        // not the good even for it but if it works it works:tm:
         FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
             DroneAccessoryRegistry.initialize();
             ComputerCraftAPI.registerAPIFactory((computer) -> {
@@ -81,7 +84,8 @@ public class Acdrones implements ModInitializer {
             });
         });
 
-        System.out.println(DroneAccessoryRegistry.DRONE_ACCESSORIES.getId(DroneAccessoryRegistry.DRONE_ACCESSORY_CLAW));
+
+//        System.out.println(DroneAccessoryRegistry.DRONE_ACCESSORIES.getId(DroneAccessoryRegistry.DRONE_ACCESSORY_CLAW));
     }
 
     public static Item registerItem(Item item, String id) {

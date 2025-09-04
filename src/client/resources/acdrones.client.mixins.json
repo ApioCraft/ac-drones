@@ -1,9 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.apiocraft.acdrones.mixin.client",
+  "package": "net.apiocraft.acdrones.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "FallingBlockEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
