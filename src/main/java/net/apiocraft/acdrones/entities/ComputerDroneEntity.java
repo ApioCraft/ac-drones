@@ -305,6 +305,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     @Override
     public void remove(RemovalReason reason) {
+        super.remove(reason);
         if(!getWorld().isClient() && lastChunkPos != null) {
             ((ServerWorld)getWorld()).getChunkManager().removeTicket(
                     ChunkTicketType.PLAYER,
