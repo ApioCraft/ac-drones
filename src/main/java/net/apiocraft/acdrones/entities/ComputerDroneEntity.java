@@ -295,7 +295,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     @Override
     public boolean handleAttack(Entity attacker) {
         if(attacker instanceof PlayerEntity) {
-            if(!getWorld().isClient() && (attacker.getUuid() != owner && !CommonProtection.canInteractEntity(getWorld(), this, ((PlayerEntity) attacker).getGameProfile(), (PlayerEntity) attacker))) {
+            if (!getWorld().isClient()
+                    && attacker instanceof PlayerEntity player
+                    && (player.getUuid().equals(owner)
+                    || CommonProtection.canInteractEntity(getWorld(), this, player.getGameProfile(), player))) {
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getInventory());
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getAccessoryInventory());
                 ItemStack i = new ItemStack(Acdrones.COMPUTER_DRONE_ITEM);
