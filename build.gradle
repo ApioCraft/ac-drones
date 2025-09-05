@@ -35,6 +35,8 @@ repositories {
             includeGroup("cc.tweaked")
         }
     }
+
+    maven { url "https://maven.nucleoid.xyz/" }
 }
 
 dependencies {
@@ -48,6 +50,7 @@ dependencies {
 
     modCompileOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric-api:${project.cc_version}")
     modImplementation("cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric:${project.cc_version}")
+    modImplementation include("eu.pb4:common-protection-api:${project.common_protection_version}")
 }
 
 processResources {

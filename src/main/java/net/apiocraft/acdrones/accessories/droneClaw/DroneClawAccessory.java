@@ -3,6 +3,8 @@ package net.apiocraft.acdrones.accessories.droneClaw;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import eu.pb4.common.protection.api.CommonProtection;
+import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.core.DroneAccessoryAttachment;
 import net.apiocraft.acdrones.core.DroneAccessoryType;
 import net.apiocraft.acdrones.core.IDroneAccess;
@@ -21,6 +23,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Clearable;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +60,8 @@ public class DroneClawAccessory implements IDroneAccessory {
             pos = pos.down();
         }
         // is there any block there?
-        if(drone.getEntity().getEntityWorld().getBlockState(pos).isAir()) {
+        if(drone.getEntity().getEntityWorld().getBlockState(pos).isAir() || (drone.getEntity().getOwner() != null && !CommonProtection.canBreakBlock(drone.getEntity().getWorld(), pos,
+                Acdrones.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null), null))) {
             return MethodResult.of(null, "no block to grab");
         }
         // is there any block in the claw?

@@ -12,6 +12,7 @@ import dan200.computercraft.shared.util.ComponentMap;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NonNegativeId;
+import eu.pb4.common.protection.api.CommonProtection;
 import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.DroneBrain;
@@ -60,6 +61,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private static final String NBT_HOVERING = "Hovering";
     private static final String NBT_SELECTED_SLOT = "SelectedSlot";
     private static final String NBT_ACCESSORY = "Accessory";
+    private static final String NBT_OWNER = "Owner";
     private static final TrackedData<Boolean> on = DataTracker.registerData(ComputerDroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Optional<IDroneAccessory>> accessory = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
     // TODO: suppport a dynamic number of attachments
@@ -74,6 +76,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private final DroneBrain brain;
     public boolean hovering = false;
     protected @Nullable String label = null;
+    private UUID owner;
 
 
     //private IDroneAccessory accessory;
@@ -256,11 +259,13 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         System.out.println("Interacting with drone");
         if (player.isSneaking()) {
             if (!getWorld().isClient()) {
-                System.out.println("not on client, so we turn on and open gui");
-                var serverComputer = createServerComputer();
-                serverComputer.turnOn();
-                //player.openHandledScreen(this);
-                new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
+                if(CommonProtection.canInteractEntity(getWorld(), this, player.getGameProfile(), player)) {
+                    System.out.println("not on client, so we turn on and open gui");
+                    var serverComputer = createServerComputer();
+                    serverComputer.turnOn();
+                    //player.openHandledScreen(this);
+                    new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
+                }
             }
             return ActionResult.SUCCESS;
         } else {
@@ -290,7 +295,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     @Override
     public boolean handleAttack(Entity attacker) {
         if(attacker instanceof PlayerEntity) {
-            if(!getWorld().isClient()) {
+            if(!getWorld().isClient() && (attacker.getUuid() != owner && !CommonProtection.canInteractEntity(getWorld(), this, ((PlayerEntity) attacker).getGameProfile(), (PlayerEntity) attacker))) {
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getInventory());
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getAccessoryInventory());
                 ItemStack i = new ItemStack(Acdrones.COMPUTER_DRONE_ITEM);
@@ -360,12 +365,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         if(dataTracker.get(attachment_2).isPresent()) {
             getAccessoryAttachment(1).setDrone(brain);
         }
+        owner = nbt.contains(NBT_OWNER) ? nbt.getUuid(NBT_OWNER) : null;
 
         // I don't even remember why this is here
-        NbtCompound accessoryInventoryNbt = nbt.getCompound("AccessoryInventory");
-
-
-
+        //NbtCompound accessoryInventoryNbt = nbt.getCompound("AccessoryInventory");
     }
 
     @Override
@@ -392,10 +395,8 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             accessoryNbt.putString("id", DroneAccessoryRegistry.getId(getAccessoryAttachment(1)).toString());
             nbt.put("Attachment2", accessoryNbt);
         }
-
-
         nbt.putInt(NBT_SELECTED_SLOT, selectedSlot);
-
+        if (owner != null) nbt.putUuid(NBT_OWNER, owner);
     }
 
     public final ServerComputer createServerComputer() {
@@ -540,6 +541,18 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                     break;
             }
         }
+    }
+
+    public void setOnwer(UUID owner) {
+        this.owner = owner;
+    }
+
+    public @Nullable UUID getOwner() {
+        return owner;
+    }
+
+    public boolean isOwner(PlayerEntity player) {
+        return owner != null && owner.equals(player.getUuid());
     }
 
 

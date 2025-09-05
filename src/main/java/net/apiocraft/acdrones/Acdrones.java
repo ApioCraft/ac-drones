@@ -28,6 +28,7 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
 import java.util.Optional;
@@ -61,6 +62,8 @@ public class Acdrones implements ModInitializer {
     public static final TrackedDataHandler<Optional<IDroneAccessory>> DRONE_ACCESSORY_HANDLER = TrackedDataHandler
             .create(DroneAccessoryTypes.OPTIONAL_CODEC);
 
+    private static MinecraftServer server;
+
     @Override
     public void onInitialize() {
         // DroneAccessoryRegistry.initialize();
@@ -84,8 +87,16 @@ public class Acdrones implements ModInitializer {
             });
         });
 
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            Acdrones.server = server;
+        });
+
 
 //        System.out.println(DroneAccessoryRegistry.DRONE_ACCESSORIES.getId(DroneAccessoryRegistry.DRONE_ACCESSORY_CLAW));
+    }
+
+    public static MinecraftServer getServer() {
+        return server;
     }
 
     public static Item registerItem(Item item, String id) {

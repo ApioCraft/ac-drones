@@ -1,5 +1,7 @@
 package net.apiocraft.acdrones.commands;
 
+import com.mojang.authlib.GameProfile;
+import eu.pb4.common.protection.api.CommonProtection;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
 import net.apiocraft.acdrones.core.IDroneAccess;
