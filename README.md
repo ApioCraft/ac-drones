@@ -24,6 +24,11 @@ Common `mods` folders:
 - macOS: `~/Library/Application Support/minecraft/mods`
 - Linux: `~/.minecraft/mods`
 
+## License
+This project is licensed under the **GNU LGPL v2.1 (or later)**.  
+See [LICENSE](./LICENSE) for full details.
+
+
 ## Notes
 - The project targets Java 21; if using an IDE, set Gradle JVM to 21.
 - You do not need to install Gradle; the included wrapper (`gradlew`) is used.
