@@ -3,9 +3,6 @@ A drone mod for CC:Tweaked
 
 ## Prerequisites
 - JDK 21 (Java 21)
-- Fabric Loader for Minecraft 1.21 (for playing the built mod)
-- Fabric API (runtime dependency)
-- CC: Tweaked for 1.21 Fabric (runtime dependency)
 
 ## Build
 - macOS/Linux: `./gradlew build`
