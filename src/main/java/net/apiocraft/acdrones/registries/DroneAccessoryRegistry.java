@@ -32,6 +32,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -42,12 +43,12 @@ public class DroneAccessoryRegistry {
             .createSimple(DroneAccessoryFactory.class, Identifier.of(Acdrones.MOD_ID, "accessories"))
             .buildAndRegister();
 
-    public static final HashMap<DroneAccessoryFactory, Item> ACCESSORY_ITEM_LOOKUP = new HashMap<>();
+    public static final HashMap<DroneAccessoryFactory, Identifier> ACCESSORY_ITEM_LOOKUP = new HashMap<>();
 
     private static final HashMap<Class<? extends IDroneAccessory>, DroneAccessoryFactory> ACCESSORY_TYPE_TO_FACTORY = new HashMap<>();
 
 
-    public static DroneAccessoryFactory registerAccessory(String name, Supplier<IDroneAccessory> supplier, Item item) {
+    public static DroneAccessoryFactory registerAccessory(String name, Supplier<IDroneAccessory> supplier, Identifier item) {
         DroneAccessoryFactory factory = new DroneAccessoryFactory(supplier);
         Registry.register(DRONE_ACCESSORIES, Identifier.of(Acdrones.MOD_ID, name), factory);
         ACCESSORY_ITEM_LOOKUP.put(factory, item);
@@ -82,30 +83,27 @@ public class DroneAccessoryRegistry {
     }
 
     public static ItemStack createItemStack(IDroneAccessory accessory) {
-        Item item = ACCESSORY_ITEM_LOOKUP.get(ACCESSORY_TYPE_TO_FACTORY.get(accessory.getClass()));
-        if (item != null) {
-            return new ItemStack(item);
+        Identifier itemId = ACCESSORY_ITEM_LOOKUP.get(ACCESSORY_TYPE_TO_FACTORY.get(accessory.getClass()));
+        if (itemId != null) {
+            Item item = Registries.ITEM.get(itemId);
+            if (item != null) return new ItemStack(item);
         }
         return ItemStack.EMPTY;
     }
 
     public static IDroneAccessory createAccessory(ItemStack stack) {
-        Item item = stack.getItem();
-        for (DroneAccessoryFactory accessory : ACCESSORY_ITEM_LOOKUP.keySet()) {
-            if (ACCESSORY_ITEM_LOOKUP.get(accessory) == item) {
-                return accessory.create();
+        Identifier stackId = Registries.ITEM.getId(stack.getItem());
+        for (var entry : ACCESSORY_ITEM_LOOKUP.entrySet()) {
+            if (entry.getValue().equals(stackId)) {
+                return entry.getKey().create();
             }
         }
         return null;
     }
 
     public static boolean isAccessory(ItemStack stack) {
-        for (Item item : ACCESSORY_ITEM_LOOKUP.values()) {
-            if (stack.getItem() == item) {
-                return true;
-            }
-        }
-        return false;
+        Identifier stackId = Registries.ITEM.getId(stack.getItem());
+        return ACCESSORY_ITEM_LOOKUP.containsValue(stackId);
     }
 
 
@@ -121,8 +119,24 @@ public class DroneAccessoryRegistry {
         // just here so the class is loaded
     }
 
-    public static final DroneAccessoryFactory DRONE_ACCESSORY_CLAW = registerAccessory("claw", DroneClawAccessory::new, Acdrones.DRONE_ACCESSORY_CLAW_ITEM);
-    public static final DroneAccessoryFactory DRONE_ATTACHMENT_MODEM = registerAccessory("modem", DroneModemAccessory::new, ModRegistry.Items.WIRELESS_MODEM_NORMAL.get());
-    public static final DroneAccessoryFactory DRONE_ATTACHMENT_ADVANCED_MODEM = registerAccessory("advanced_modem", () -> new DroneModemAccessory(true), ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get());
-    public static final DroneAccessoryFactory DRONE_ATTACHMENT_CHUNKLOADER = registerAccessory("chunkloader", DroneChunkloaderAccessory::new, Acdrones.DRONE_ACCESSORY_CHUNKLOADER_ITEM);
+    public static final DroneAccessoryFactory DRONE_ACCESSORY_CLAW = registerAccessory(
+            "claw",
+            DroneClawAccessory::new,
+            Registries.ITEM.getId(Acdrones.DRONE_ACCESSORY_CLAW_ITEM)
+    );
+    public static final DroneAccessoryFactory DRONE_ATTACHMENT_MODEM = registerAccessory(
+            "modem",
+            DroneModemAccessory::new,
+            Identifier.of("computercraft", "wireless_modem_normal")
+    );
+    public static final DroneAccessoryFactory DRONE_ATTACHMENT_ADVANCED_MODEM = registerAccessory(
+            "advanced_modem",
+            () -> new DroneModemAccessory(true),
+            Identifier.of("computercraft", "wireless_modem_advanced")
+    );
+    public static final DroneAccessoryFactory DRONE_ATTACHMENT_CHUNKLOADER = registerAccessory(
+            "chunkloader",
+            DroneChunkloaderAccessory::new,
+            Registries.ITEM.getId(Acdrones.DRONE_ACCESSORY_CHUNKLOADER_ITEM)
+    );
 }

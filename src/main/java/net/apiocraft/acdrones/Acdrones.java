@@ -22,6 +22,7 @@ package net.apiocraft.acdrones;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.component.ComputerComponent;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import net.apiocraft.acdrones.apis.DroneAPI;
@@ -100,6 +101,7 @@ public class Acdrones implements ModInitializer {
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
         // not the good even for it but if it works it works:tm:
         FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
+
             DroneAccessoryRegistry.initialize();
             ComputerCraftAPI.registerAPIFactory((computer) -> {
                 var drone = computer.getComponent(DRONE);
