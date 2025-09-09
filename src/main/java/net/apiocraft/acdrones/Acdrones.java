@@ -45,9 +45,12 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -85,18 +88,44 @@ public class Acdrones implements ModInitializer {
 
     private static MinecraftServer server;
 
+    public static void addToCCTab(Item item) {
+        // Scan all item-group ids and pick the ones owned by CC:T ("computercraft")
+        for (Identifier id : Registries.ITEM_GROUP.getIds()) {
+            if ("computercraft".equals(id.getNamespace())) {
+                RegistryKey<ItemGroup> key =
+                        RegistryKey.of(RegistryKeys.ITEM_GROUP, id);
+
+                ItemGroupEvents.modifyEntriesEvent(key).register(entries -> {
+                    // You can also do entries.addAfter(...), addBefore(...), etc.
+                    entries.add(item);
+                });
+            }
+        }
+    }
+
     @Override
     public void onInitialize() {
         // DroneAccessoryRegistry.initialize();
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS)
+        /*ItemGroupEvents.modifyEntriesEvent(ModRegistry.Items)
                 .register((itemGroup) -> {
                     itemGroup.add(DRONE_ACCESSORY_CLAW_ITEM);
                     itemGroup.add(DRONE_ACCESSORY_CHUNKLOADER_ITEM);
                 });
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL)
-                .register((itemGroup) -> itemGroup.add(COMPUTER_DRONE_ITEM));
+                .register((itemGroup) -> itemGroup.add(COMPUTER_DRONE_ITEM));*/
+
+        RegistryKey<ItemGroup> ccTab = RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of("computercraft", "tab"));
+        ItemGroupEvents.modifyEntriesEvent(ccTab).register(entries -> {
+            entries.add(DRONE_ACCESSORY_CLAW_ITEM);
+            // TODO: texture
+            entries.add(DRONE_ACCESSORY_CHUNKLOADER_ITEM);
+            entries.add(COMPUTER_DRONE_ITEM);
+            // TODO: properly give a use to these and make them properly craftable
+            //entries.add(DRONE_BODY_ITEM);
+            //entries.add(DRONE_PROPELLER_ITEM);
+        });
 
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
         // not the good even for it but if it works it works:tm:
