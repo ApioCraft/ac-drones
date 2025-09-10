@@ -20,6 +20,7 @@
 
 package net.apiocraft.acdrones.commands;
 
+import eu.pb4.common.protection.api.CommonProtection;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
 import net.apiocraft.acdrones.core.IDroneAccess;
@@ -75,9 +76,7 @@ public class DroneUseCommand implements DroneCommand {
         if (!allowReplacing && replaceable) return false;
 
         // Check spawn protection
-        var isProtected = replaceable
-                ? isBlockProtected(world, position, player) // we replace
-                : isBlockProtected(world, position.offset(side), player); // we put down block
+        var isProtected = CommonProtection.canPlaceBlock(world, position, drone.getEntity().getOwner() != null ? world.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null) : null, null);
         return !isProtected;
     }
 

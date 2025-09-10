@@ -121,6 +121,17 @@ public class DroneClawAccessory implements IDroneAccessory {
             return MethodResult.of(null, "claw is empty");
         }
 
+        // find where the block will land by raytracing downwards
+        int posy_check = pos.getY();
+        while(drone.getEntity().getEntityWorld().isInBuildLimit(new BlockPos(pos.getX(), posy_check, pos.getZ())) && drone.getEntity().getEntityWorld().getBlockState(new BlockPos(pos.getX(), posy_check, pos.getZ())).isAir()) {
+            posy_check--;
+        }
+        // check if has permission to place block
+        if(drone.getEntity().getOwner() != null && !CommonProtection.canPlaceBlock(drone.getEntity().getWorld(), new BlockPos(pos.getX(), posy_check + 1, pos.getZ()),
+                Acdrones.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null), null)) {
+            return MethodResult.of(null, "landing spot protected");
+        }
+
         // get block data
         BlockState state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), carryData.getCompound("carryState"));
         //BlockEntity entity = null;

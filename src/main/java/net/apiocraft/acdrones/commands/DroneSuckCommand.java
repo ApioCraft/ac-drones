@@ -23,6 +23,8 @@ package net.apiocraft.acdrones.commands;
 import dan200.computercraft.shared.platform.ContainerTransfer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.InventoryUtil;
+import eu.pb4.common.protection.api.CommonProtection;
+import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.DroneCommand;
 import net.apiocraft.acdrones.DroneCommandResult;
 import net.apiocraft.acdrones.core.IDroneAccess;
@@ -65,6 +67,9 @@ public class DroneSuckCommand implements DroneCommand {
         var inventory = PlatformHelper.get().getContainer(world, blockPosition, side);
 
         if (inventory != null) {
+            if(!CommonProtection.canInteractBlock(world, blockPosition, Acdrones.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null), null)) {
+                return CompletableFuture.completedFuture(DroneCommandResult.failure("block is protected"));
+            }
             // Take from inventory of thing in front
             var transferred = inventory.moveTo(getOffsetInventory(drone), quantity);
             switch (transferred) {
