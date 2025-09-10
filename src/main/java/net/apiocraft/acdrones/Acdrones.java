@@ -127,6 +127,11 @@ public class Acdrones implements ModInitializer {
             //entries.add(DRONE_PROPELLER_ITEM);
         });
 
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> {
+            entries.add(DRONE_BODY_ITEM);
+            entries.add(DRONE_PROPELLER_ITEM);
+        });
+
         TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
         // not the good even for it but if it works it works:tm:
         FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
