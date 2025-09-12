@@ -485,7 +485,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     protected ServerComputer createComputer(int id) {
         //return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), id, label, ComputerFamily.ADVANCED, Config.turtleTermWidth, Config.turtleTermHeight, ComponentMap.builder().add(Acdrones.DRONE, brain).build());
-        return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), ServerComputer.properties(id, ComputerFamily.ADVANCED));
+        return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), ServerComputer.properties(id, ComputerFamily.ADVANCED).terminalSize(Config.TURTLE_TERM_WIDTH, Config.TURTLE_TERM_HEIGHT).addComponent(Acdrones.DRONE, brain));
     }
 
 
