@@ -28,12 +28,13 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.util.ComponentMap;
+import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.NonNegativeId;
 import eu.pb4.common.protection.api.CommonProtection;
 import net.apiocraft.acdrones.Acdrones;
+import net.apiocraft.acdrones.DroneNetworkingConstants;
 import net.apiocraft.acdrones.accessories.simpleAccessories.chunkloader.DroneChunkloaderAccessory;
 import net.apiocraft.acdrones.core.DroneBrain;
 import net.apiocraft.acdrones.core.IDroneAccessory;
@@ -42,6 +43,7 @@ import net.apiocraft.acdrones.inventory.AttachmentInventory;
 import net.apiocraft.acdrones.inventory.DroneInventory;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -54,11 +56,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
@@ -83,13 +90,13 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private static final String NBT_ACCESSORY = "Accessory";
     private static final String NBT_OWNER = "Owner";
     private static final TrackedData<Boolean> on = DataTracker.registerData(ComputerDroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Optional<IDroneAccessory>> accessory = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
+    private static final TrackedData<Optional<IDroneAccessory>> accessory = DataTracker.registerData(ComputerDroneEntity.class, DroneNetworkingConstants.DRONE_ACCESSORY_HANDLER);
     // TODO: suppport a dynamic number of attachments
     // I gave the hell up trying to get arrays to work with datatrackers
     // i'll make it later... probably
     // for now, excuse me for this abomination
-    private static final TrackedData<Optional<IDroneAccessory>> attachment_1 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
-    private static final TrackedData<Optional<IDroneAccessory>> attachment_2 = DataTracker.registerData(ComputerDroneEntity.class, Acdrones.DRONE_ACCESSORY_HANDLER);
+    private static final TrackedData<Optional<IDroneAccessory>> attachment_1 = DataTracker.registerData(ComputerDroneEntity.class, DroneNetworkingConstants.DRONE_ACCESSORY_HANDLER);
+    private static final TrackedData<Optional<IDroneAccessory>> attachment_2 = DataTracker.registerData(ComputerDroneEntity.class, DroneNetworkingConstants.DRONE_ACCESSORY_HANDLER);
     private final DroneInventory inventory;
     private final AccessoryInventory accessoryInventory;
     private final AttachmentInventory attachmentInventory;
@@ -117,7 +124,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     }
 
     public static DefaultAttributeContainer.Builder createComputerDroneAttributes() {
-        return DefaultAttributeContainer.builder().add(EntityAttributes.GENERIC_MAX_HEALTH).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).add(EntityAttributes.GENERIC_MOVEMENT_SPEED).add(EntityAttributes.GENERIC_ARMOR).add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS).add(EntityAttributes.GENERIC_MAX_ABSORPTION).add(EntityAttributes.GENERIC_STEP_HEIGHT).add(EntityAttributes.GENERIC_SCALE).add(EntityAttributes.GENERIC_GRAVITY).add(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE).add(EntityAttributes.GENERIC_FALL_DAMAGE_MULTIPLIER).add(EntityAttributes.GENERIC_JUMP_STRENGTH).add(EntityAttributes.GENERIC_OXYGEN_BONUS).add(EntityAttributes.GENERIC_BURNING_TIME).add(EntityAttributes.GENERIC_EXPLOSION_KNOCKBACK_RESISTANCE).add(EntityAttributes.GENERIC_WATER_MOVEMENT_EFFICIENCY).add(EntityAttributes.GENERIC_MOVEMENT_EFFICIENCY).add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK);
+        return DefaultAttributeContainer.builder().add(EntityAttributes.GENERIC_MAX_HEALTH).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE).add(EntityAttributes.GENERIC_MOVEMENT_SPEED).add(EntityAttributes.GENERIC_ARMOR).add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS);
     }
 
 //    private void setupChunkloading() {
@@ -163,11 +170,6 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     }
 
     @Override
-    protected double getGravity() {
-        return 0.08;
-    }
-
-    @Override
     public void tick() {
         super.tick();
 
@@ -201,7 +203,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         }
 
         //System.out.println(hasNoGravity());
-        var movement = getMovement();
+        var movement = getVelocity();
         move(MovementType.SELF, movement);
         updateDirection();
 
@@ -217,7 +219,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
 
             setNoGravity(computer.isOn());
-            applyGravity();
+
             // drag
             setVelocity(getVelocity().multiply(0.9, 0.9, 0.9));
 
@@ -283,8 +285,25 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                     System.out.println("not on client, so we turn on and open gui");
                     var serverComputer = createServerComputer();
                     serverComputer.turnOn();
-                    //player.openHandledScreen(this);
-                    new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
+                    //player.openHandledScreen();
+                    player.openHandledScreen(new ExtendedScreenHandlerFactory() {
+
+                                                 @Override
+                                                 public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+                                                     return DroneMenu.ofBrain(syncId, playerInventory, brain);
+                                                 }
+
+                                                 @Override
+                                                 public Text getDisplayName() {
+                                                     return Text.translatable("screen.acdrones.drone_menu");
+                                                 }
+
+                                                 @Override
+                                                 public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
+                                                    new ComputerContainerData(serverComputer, ItemStack.EMPTY).toBytes(packetByteBuf);
+                                                 }
+                                             });
+                    //new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
                 }
             }
             return ActionResult.SUCCESS;
@@ -296,7 +315,8 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                     var serverComputer = createServerComputer();
                     serverComputer.turnOn();
                     //player.openHandledScreen(this);
-                    new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
+                    //new ComputerContainerData(serverComputer, ItemStack.EMPTY).open(player, this);
+                    player.openHandledScreen(this);
                 }
                 return ActionResult.SUCCESS;
             } else {
@@ -322,7 +342,10 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getInventory());
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getAccessoryInventory());
                 ItemStack i = new ItemStack(Acdrones.COMPUTER_DRONE_ITEM);
-                i.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerId));
+                //i.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerId));
+                NbtCompound nbt = i.getNbt();
+                nbt.put("computer_id", NbtInt.of(computerId));
+                i.setNbt(nbt);
 
                 ItemScatterer.spawn(getWorld(), getBlockPos().getX(), getBlockPos().getY() + 1, getBlockPos().getZ(), i);
                 remove(RemovalReason.KILLED);
@@ -355,11 +378,11 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        builder.add(on, false);
-        builder.add(accessory, Optional.empty());
-        builder.add(attachment_1, Optional.empty());
-        builder.add(attachment_2, Optional.empty());
+    protected void initDataTracker() {
+        dataTracker.startTracking(on, false);
+        dataTracker.startTracking(accessory, Optional.empty());
+        dataTracker.startTracking(attachment_1, Optional.empty());
+        dataTracker.startTracking(attachment_2, Optional.empty());
     }
 
 
@@ -461,8 +484,8 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     }
 
     protected ServerComputer createComputer(int id) {
-        return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), id, label, ComputerFamily.ADVANCED, Config.turtleTermWidth, Config.turtleTermHeight, ComponentMap.builder().add(Acdrones.DRONE, brain).build());
-
+        //return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), id, label, ComputerFamily.ADVANCED, Config.turtleTermWidth, Config.turtleTermHeight, ComponentMap.builder().add(Acdrones.DRONE, brain).build());
+        return new ServerComputer((ServerWorld) getWorld(), getBlockPos(), ServerComputer.properties(id, ComputerFamily.ADVANCED));
     }
 
 

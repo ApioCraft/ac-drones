@@ -25,15 +25,13 @@ import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.Config;
-import dan200.computercraft.shared.util.DataComponentUtil;
 import net.apiocraft.acdrones.Acdrones;
 import net.apiocraft.acdrones.entities.ComputerDroneEntity;
-import net.minecraft.component.DataComponentTypes;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
@@ -57,11 +55,16 @@ public class DroneItem extends Item implements IMedia {
             System.out.println("make an drone");
             ServerWorld serverWorld = (ServerWorld) world;
             ComputerDroneEntity drone = Acdrones.COMPUTER_DRONE_ENTITY.create(serverWorld);
-            if (context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()) != null) {
+            /*if (context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()) != null) {
                 drone.setComputerId(context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()).id());
+            }*/
+            if(context.getStack().getNbt() != null && context.getStack().getNbt().contains("computer_id")) {
+                int id = context.getStack().getNbt().getInt("computer_id");
+                drone.setComputerId(id);
             }
+
             System.out.println("drone has id too");
-            drone.setLabel(DataComponentUtil.getCustomName(context.getStack()));
+            drone.setLabel(String.valueOf(getName(context.getStack())));
             drone.refreshPositionAndAngles(context.getHitPos().x, context.getHitPos().y, context.getHitPos().z,
                     drone.getYaw(), drone.getPitch());
             drone.setVelocity(0, 0, 0);
@@ -78,27 +81,29 @@ public class DroneItem extends Item implements IMedia {
 
     @Nullable
     @Override
-    public String getLabel(RegistryWrapper.WrapperLookup registries, ItemStack stack) {
-        return DataComponentUtil.getCustomName(stack);
+    public String getLabel(ItemStack stack) {
+        return String.valueOf(getName(stack));
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> list, TooltipType options) {
-        if (options.isAdvanced() || !stack.contains(DataComponentTypes.CUSTOM_NAME)) {
-            var id = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
-            if (id != null) {
-                list.add(Text.translatable("gui.computercraft.tooltip.computer_id", id.id())
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        if (context.isAdvanced() || !stack.hasCustomName()) {
+            if(stack.getNbt() != null && stack.getNbt().contains("computer_id")) {
+                var id = stack.getNbt().getInt("computer_id");
+                tooltip.add(Text.translatable("gui.computercraft.tooltip.computer_id", id)
                         .formatted(Formatting.GRAY));
             }
         }
     }
 
     @Override
-    public @javax.annotation.Nullable Mount createDataMount(ItemStack stack, ServerWorld level) {
-        var id = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
-        return id != null
-                ? ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id.id(),
-                        Config.computerSpaceLimit)
-                : null;
+    public @Nullable Mount createDataMount(ItemStack stack, ServerWorld level) {
+        if(stack.getNbt() != null && stack.getNbt().contains("computer_id")) {
+            int id = stack.getNbt().getInt("computer_id");
+            return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id,
+                    Config.computerSpaceLimit);
+        } else {
+            return null;
+        }
     }
 }

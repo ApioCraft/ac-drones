@@ -68,7 +68,7 @@ public class Acdrones implements ModInitializer {
 
     public static final ScreenHandlerType<DroneMenu> DRONE_MENU = Registry.register(Registries.SCREEN_HANDLER,
             Identifier.of(MOD_ID, "drone_menu"),
-            ContainerData.toType(ComputerContainerData.STREAM_CODEC, DroneMenu::ofMenuData));
+            ContainerData.toType(ComputerContainerData::new, DroneMenu::ofMenuData));
 
     public static final Item DRONE_ACCESSORY_CLAW_ITEM = registerItem(new Item(new Item.Settings()), "drone_claw");
 
@@ -82,9 +82,6 @@ public class Acdrones implements ModInitializer {
     public static final Item DRONE_PROPELLER_ITEM = registerItem(new Item(new Item.Settings()), "drone_propeller");
 
     public static final ComputerComponent<IDroneAccess> DRONE = ComputerComponent.create(MOD_ID, "drone");
-
-    public static final TrackedDataHandler<Optional<IDroneAccessory>> DRONE_ACCESSORY_HANDLER = TrackedDataHandler
-            .create(DroneAccessoryTypes.OPTIONAL_CODEC);
 
     private static MinecraftServer server;
 
@@ -132,7 +129,8 @@ public class Acdrones implements ModInitializer {
             entries.add(DRONE_PROPELLER_ITEM);
         });
 
-        TrackedDataHandlerRegistry.register(DRONE_ACCESSORY_HANDLER);
+        TrackedDataHandlerRegistry.register(DroneNetworkingConstants.DRONE_ACCESSORY_HANDLER);
+
         // not the good even for it but if it works it works:tm:
         FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
 

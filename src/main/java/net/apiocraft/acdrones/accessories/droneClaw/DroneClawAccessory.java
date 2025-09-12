@@ -37,8 +37,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryEntryLookup;
@@ -51,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class DroneClawAccessory implements IDroneAccessory {
-    public static final PacketCodec<RegistryByteBuf, DroneClawAccessory> CODEC = PacketCodec.of(
+    /*public static final PacketCodec<RegistryByteBuf, DroneClawAccessory> CODEC = PacketCodec.of(
             ((value, buf) -> {
                 buf.writeNbt(value.toNbt());
             }),
@@ -60,7 +59,18 @@ public class DroneClawAccessory implements IDroneAccessory {
                 accessory.fromNbt(buf.readNbt());
                 return accessory;
             })
-    );
+    );*/
+
+    public static DroneClawAccessory read(PacketByteBuf buf) {
+        DroneClawAccessory accessory = new DroneClawAccessory();
+        accessory.fromNbt(buf.readNbt());
+        return accessory;
+    }
+
+    public static DroneClawAccessory write(PacketByteBuf buf, DroneClawAccessory accessory) {
+        buf.writeNbt(accessory.toNbt());
+        return accessory;
+    }
 
     private IDroneAccess drone;
 
@@ -95,7 +105,7 @@ public class DroneClawAccessory implements IDroneAccessory {
         carryData.putByte("carryType", (byte) 0);
         carryData.put("carryState", NbtHelper.fromBlockState(state));
         if(entity != null) {
-            carryData.put("carryEntity", entity.createNbtWithId(drone.getEntity().getRegistryManager()));
+            carryData.put("carryEntity", entity.createNbtWithId());
             Clearable.clear(entity);
 
         }
@@ -208,7 +218,7 @@ public class DroneClawAccessory implements IDroneAccessory {
 
     public BlockEntity getCarriedBlockEntity() {
         if(carryData.contains("carryEntity")) {
-            return BlockEntity.createFromNbt(drone.getEntity().getBlockPos().down(), getCarriedBlock(), carryData.getCompound("carryEntity"), drone.getEntity().getRegistryManager());
+            return BlockEntity.createFromNbt(drone.getEntity().getBlockPos().down(), getCarriedBlock(), carryData.getCompound("carryEntity"));
         }
         return null;
     }

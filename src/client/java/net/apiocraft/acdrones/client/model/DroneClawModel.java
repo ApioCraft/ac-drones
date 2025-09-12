@@ -69,10 +69,10 @@ public class DroneClawModel {
                 .uv(0, 7).cuboid(-2.0F, -17.0F, -2.0F, 4.0F, 1.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
         return TexturedModelData.of(modelData, 32, 32);
     }
-    public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-        hand2.render(matrices, vertexConsumer, light, overlay, color);
-        hand1.render(matrices, vertexConsumer, light, overlay, color);
-        bb_main.render(matrices, vertexConsumer, light, overlay, color);
+    public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+        hand2.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+        hand1.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+        bb_main.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
     public void rotato(DroneClawAccessory accessory) {

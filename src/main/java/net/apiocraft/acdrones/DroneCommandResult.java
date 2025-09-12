@@ -21,8 +21,8 @@
 package net.apiocraft.acdrones;
 
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 public class DroneCommandResult {
     private static final DroneCommandResult EMPTY_SUCCESS = new DroneCommandResult(true, null, null);

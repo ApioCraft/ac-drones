@@ -28,20 +28,20 @@ import net.apiocraft.acdrones.core.IDroneAccess;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.registries.DroneAccessoryTypes;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.PacketByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 public class DroneChunkloaderAccessory implements IDroneAccessory {
 
-    public static final PacketCodec<RegistryByteBuf, DroneChunkloaderAccessory> CODEC = PacketCodec.of(
-            ((value, buf) -> {
-                //buf.writeNbt(value.toNbt());
-            }),
-            (buf -> {
-                return new DroneChunkloaderAccessory();
-            })
-    );
+    public static DroneChunkloaderAccessory read(PacketByteBuf buf) {
+        DroneChunkloaderAccessory accessory = new DroneChunkloaderAccessory();
+        accessory.fromNbt(buf.readNbt());
+        return accessory;
+    }
+
+    public static void write(PacketByteBuf buf, DroneChunkloaderAccessory accessory) {
+        buf.writeNbt(accessory.toNbt());
+    }
 
     private IDroneAccess drone;
 

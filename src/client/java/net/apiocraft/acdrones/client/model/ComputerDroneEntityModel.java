@@ -45,6 +45,7 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
     private final ModelPart Propeller3;
     private final ModelPart Rotor_FR;
     private final ModelPart Propeller4;
+
     public ComputerDroneEntityModel(ModelPart root) {
         this.Drone = root.getChild("Drone");
         this.Core = Drone.getChild("Core");
@@ -57,6 +58,7 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
         this.Rotor_FR = Drone.getChild("Rotor_FR");
         this.Propeller4 = Rotor_FR.getChild("Propeller4");
     }
+
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
@@ -101,9 +103,10 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
         ModelPartData Propeller_r4 = Propeller4.addChild("Propeller_r4", ModelPartBuilder.create().uv(7, 3).cuboid(-0.5F, -0.75F, -2.5F, 1.0F, 0.0F, 5.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, -0.7854F, 0.0F));
         return TexturedModelData.of(modelData, 32, 32);
     }
+
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, int color) {
-        Drone.render(matrices, vertexConsumer, light, overlay, color);
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        Drone.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
     @Override
@@ -155,7 +158,7 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
         Drone.pitch = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.pitch), entity.getPitch(), 0.3));
         Drone.yaw = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.yaw), entity.getYaw(), 0.3));
         // Rotate propellers
-        float propellerSpeed = ((float)entity.getVelocity().length() + 1) * (entity.isOn() ? 1 : 0);
+        float propellerSpeed = ((float) entity.getVelocity().length() + 1) * (entity.isOn() ? 1 : 0);
         Propeller.yaw = counter * propellerSpeed;
         Propeller2.yaw = -counter * propellerSpeed;
         Propeller3.yaw = counter * propellerSpeed;
@@ -163,6 +166,4 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
 
         // Update last velocity for next frame
     }
-
-
 }

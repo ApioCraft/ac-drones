@@ -29,15 +29,14 @@ import net.apiocraft.acdrones.core.IDroneAccess;
 import net.apiocraft.acdrones.core.IDroneAccessory;
 import net.apiocraft.acdrones.registries.DroneAccessoryTypes;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class DroneModemAccessory extends WirelessModemPeripheral implements IDroneAccessory {
 
-    public static PacketCodec<RegistryByteBuf, DroneModemAccessory> CODEC = PacketCodec.of(
+    /*public static PacketCodec<RegistryByteBuf, DroneModemAccessory> CODEC = PacketCodec.of(
             ((value, buf) -> {
                 buf.writeNbt(value.toNbt());
             }),
@@ -46,7 +45,17 @@ public class DroneModemAccessory extends WirelessModemPeripheral implements IDro
                 accessory.fromNbt(buf.readNbt());
                 return accessory;
             })
-    );
+    );*/
+
+    public static DroneModemAccessory read(PacketByteBuf buf) {
+        DroneModemAccessory accessory = new DroneModemAccessory();
+        accessory.fromNbt(buf.readNbt());
+        return accessory;
+    }
+
+    public static void write(PacketByteBuf buf, DroneModemAccessory accessory) {
+        buf.writeNbt(accessory.toNbt());
+    }
 
     private IDroneAccess drone;
 

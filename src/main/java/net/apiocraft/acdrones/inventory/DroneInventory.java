@@ -42,7 +42,7 @@ public class DroneInventory implements BasicContainer {
     DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4, ItemStack.EMPTY);
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
+    public DefaultedList<ItemStack> getContents() {
         return inventory;
     }
 
@@ -63,7 +63,7 @@ public class DroneInventory implements BasicContainer {
             if (!(this.inventory.get(i)).isEmpty()) {
                 nbtCompound = new NbtCompound();
                 nbtCompound.putByte("Slot", (byte)i);
-                nbtList.add((this.inventory.get(i)).encode(this.drone.getRegistryManager(), nbtCompound));
+                nbtList.add((this.inventory.get(i)).writeNbt(nbtCompound));
             }
         }
 
@@ -76,7 +76,7 @@ public class DroneInventory implements BasicContainer {
         for(int i = 0; i < nbtList.size(); ++i) {
             NbtCompound nbtCompound = nbtList.getCompound(i);
             int j = nbtCompound.getByte("Slot") & 255;
-            ItemStack itemStack = ItemStack.fromNbt(this.drone.getRegistryManager(), nbtCompound).orElse(ItemStack.EMPTY);
+            ItemStack itemStack = ItemStack.fromNbt(nbtCompound);
             this.inventory.set(j, itemStack);
         }
 

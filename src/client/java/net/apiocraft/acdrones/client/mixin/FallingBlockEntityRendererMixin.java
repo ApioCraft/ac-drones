@@ -55,7 +55,7 @@ public class FallingBlockEntityRendererMixin {
      * @author BomberPlays
      * @reason Fix falling block entity not rendering block entities
      */
-    @Overwrite
+   /* @Overwrite
     public void render(FallingBlockEntity fallingBlockEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         BlockState blockState = fallingBlockEntity.getBlockState();
         if(blockState.hasBlockEntity()) {
@@ -80,5 +80,5 @@ public class FallingBlockEntityRendererMixin {
                 ((FallingBlockEntityRenderer)(Object)this).render(fallingBlockEntity, f, g, matrixStack, vertexConsumerProvider, i);
             }
         }
-    }
+    }*/
 }
