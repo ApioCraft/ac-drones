@@ -132,12 +132,14 @@ public class Acdrones implements ModInitializer {
         TrackedDataHandlerRegistry.register(DroneNetworkingConstants.DRONE_ACCESSORY_HANDLER);
 
         // not the good even for it but if it works it works:tm:
-        DroneAccessoryRegistry.initialize();
-        ComputerCraftAPI.registerAPIFactory((computer) -> {
-            var drone = computer.getComponent(DRONE);
-            System.out.println("Do api drone?");
-            System.out.println(DRONE);
-            return drone != null ? new DroneAPI(drone) : null;
+        FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
+
+            DroneAccessoryRegistry.initialize();
+            DroneAccessoryTypes.initialize();
+            ComputerCraftAPI.registerAPIFactory((computer) -> {
+                var drone = computer.getComponent(DRONE);
+                return drone != null ? new DroneAPI(drone) : null;
+            });
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
