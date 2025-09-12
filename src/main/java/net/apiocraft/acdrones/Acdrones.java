@@ -137,6 +137,7 @@ public class Acdrones implements ModInitializer {
         FabricLoader.getInstance().getModContainer("computercraft").ifPresent(modContainer -> {
 
             DroneAccessoryRegistry.initialize();
+            DroneAccessoryTypes.initialize();
             ComputerCraftAPI.registerAPIFactory((computer) -> {
                 var drone = computer.getComponent(DRONE);
                 return drone != null ? new DroneAPI(drone) : null;

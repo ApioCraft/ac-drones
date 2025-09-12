@@ -48,4 +48,8 @@ public class DroneAccessoryTypes {
 
     public static final PacketCodec<RegistryByteBuf, Optional<IDroneAccessory>> OPTIONAL_CODEC = PacketCodecs.optional(CODEC);
 
+    public static void initialize() {
+
+    }
+
 }
