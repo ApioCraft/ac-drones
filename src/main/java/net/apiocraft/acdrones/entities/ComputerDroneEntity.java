@@ -44,6 +44,8 @@ import net.apiocraft.acdrones.inventory.DroneInventory;
 import net.apiocraft.acdrones.menu.DroneMenu;
 import net.apiocraft.acdrones.registries.DroneAccessoryRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -115,6 +117,13 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     private int selectedSlot = 0;
     private Vec3d lastVelocity = Vec3d.ZERO;
 
+    @Environment(EnvType.CLIENT)
+    public float propellerRotation = 0;
+    @Environment(EnvType.CLIENT)
+    public float smoothPitch = 0;
+    @Environment(EnvType.CLIENT)
+    public float smoothYaw = 0;
+
     public ComputerDroneEntity(EntityType<? extends ComputerDroneEntity> type, World world) {
         super(type, world);
         brain = new DroneBrain(this);
@@ -182,7 +191,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
                 // first load our chunk to not get unlodead
                 serverWorld.getChunkManager().addTicket(
-                        ChunkTicketType.FORCED,
+                        ChunkTicketType.PLAYER,
                         chunkPos,
                         3,
                         chunkPos
@@ -191,7 +200,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 if(lastChunkPos != null) {
 
                     serverWorld.getChunkManager().removeTicket(
-                            ChunkTicketType.FORCED,
+                            ChunkTicketType.PLAYER,
                             lastChunkPos,
                             3,
                             lastChunkPos
@@ -279,7 +288,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         System.out.println("Interacting with drone");
-        if (player.isSneaking()) {
+        if (!player.isSneaking()) {
             if (!getWorld().isClient()) {
                 if(CommonProtection.canInteractEntity(getWorld(), this, player.getGameProfile(), player)) {
                     System.out.println("not on client, so we turn on and open gui");
@@ -348,7 +357,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 i.setNbt(nbt);
 
                 ItemScatterer.spawn(getWorld(), getBlockPos().getX(), getBlockPos().getY() + 1, getBlockPos().getZ(), i);
-                remove(RemovalReason.KILLED);
+                remove(RemovalReason.DISCARDED);
             }
         }
         return true;

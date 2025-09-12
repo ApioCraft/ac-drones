@@ -71,6 +71,9 @@ public class DroneClawAccessoryRenderer implements IAccessoryRenderer {
             BlockModelRenderer modelRenderer = blockRenderManager.getModelRenderer();
 
             BlockState state = accessory.getCarriedBlock();
+            if(state.isIn(Acdrones.CLAW_BLACKLIST)) {
+                return; // silently fail to render blacklisted blocks, because they are blacklisted for a reason.
+            }
 
             BakedModel model = blockRenderManager.getModel(state);
             //System.out.println("hello");

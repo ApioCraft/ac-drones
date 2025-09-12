@@ -39,6 +39,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -51,6 +53,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -82,6 +86,7 @@ public class Acdrones implements ModInitializer {
     public static final Item DRONE_PROPELLER_ITEM = registerItem(new Item(new Item.Settings()), "drone_propeller");
 
     public static final ComputerComponent<IDroneAccess> DRONE = ComputerComponent.create(MOD_ID, "drone");
+    public static final TagKey<Block> CLAW_BLACKLIST = TagKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "claw_blacklist"));
 
     private static MinecraftServer server;
 
