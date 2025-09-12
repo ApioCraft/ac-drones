@@ -91,6 +91,9 @@ public class DroneClawAccessory implements IDroneAccessory {
         // get block data
         BlockState state = drone.getEntity().getEntityWorld().getBlockState(pos);
         BlockEntity entity = drone.getEntity().getEntityWorld().getBlockEntity(pos);
+        if(state.isIn(Acdrones.CLAW_BLACKLIST)) {
+            return MethodResult.of(null, "cannot grab block");
+        }
         // save block data
         carryData.putByte("carryType", (byte) 0);
         carryData.put("carryState", NbtHelper.fromBlockState(state));

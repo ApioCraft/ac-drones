@@ -36,10 +36,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.HashMap;
+
 public class ComputerDroneEntityRenderer extends EntityRenderer<ComputerDroneEntity> {
     private final ModelPart base;
     ComputerDroneEntityModel model;
-    private float rotationCounter;
+
 
     private static final RenderLayer TEXTURE = RenderLayer.getEntityCutout(Identifier.of(Acdrones.MOD_ID, "textures/entity/drone.png"));
     public ComputerDroneEntityRenderer(EntityRendererFactory.Context ctx) {
@@ -49,12 +51,51 @@ public class ComputerDroneEntityRenderer extends EntityRenderer<ComputerDroneEnt
 
     }
 
+    public static double lerpDegrees(double start, double end, double t) {
+        // Normalize angles to be between 0 and 360
+        start = normalizeDegrees(start);
+        end = normalizeDegrees(end);
+
+        // Calculate the difference
+        double diff = end - start;
+
+        // Adjust for shortest path
+        if (diff > 180) {
+            diff -= 360;
+        } else if (diff < -180) {
+            diff += 360;
+        }
+
+        // Perform the lerp
+        double result = start + diff * t;
+
+        // Normalize the result
+        return normalizeDegrees(result);
+    }
+
+    private static double normalizeDegrees(double degrees) {
+        degrees = degrees % 360;
+        if (degrees < 0) {
+            degrees += 360;
+        }
+        return degrees;
+    }
+
     @Override
     public void render(ComputerDroneEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        rotationCounter += 0.5 * tickDelta;
-        model.customRotate(entity, rotationCounter);
+
+        entity.propellerRotation += (float) (0.5 * tickDelta);
+
+        // Smooth pitch and yaw changes
+        float targetPitch = entity.getPitch();
+        float targetYaw = entity.getYaw();
+
+        entity.smoothPitch = (float) lerpDegrees(entity.smoothPitch, targetPitch, 0.3);
+        entity.smoothYaw = (float) lerpDegrees(entity.smoothYaw, targetYaw, 0.3);
+
 
         matrices.push();
+        model.customRotate(entity, entity.propellerRotation, entity.smoothPitch, entity.smoothYaw);
         IAccessoryRenderer accessoryRenderer = entity.getAccessory() != null ? AcdronesClient.accessoryRenderers.get(entity.getAccessory().getClass()) : null;
         if(accessoryRenderer != null) {
             accessoryRenderer.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);

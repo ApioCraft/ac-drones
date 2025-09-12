@@ -118,42 +118,16 @@ public class ComputerDroneEntityModel extends EntityModel<ComputerDroneEntity> {
 
     // Angle-aware lerp function
 
-    public static double lerpDegrees(double start, double end, double t) {
-        // Normalize angles to be between 0 and 360
-        start = normalizeDegrees(start);
-        end = normalizeDegrees(end);
 
-        // Calculate the difference
-        double diff = end - start;
-
-        // Adjust for shortest path
-        if (diff > 180) {
-            diff -= 360;
-        } else if (diff < -180) {
-            diff += 360;
-        }
-
-        // Perform the lerp
-        double result = start + diff * t;
-
-        // Normalize the result
-        return normalizeDegrees(result);
-    }
-
-    private static double normalizeDegrees(double degrees) {
-        degrees = degrees % 360;
-        if (degrees < 0) {
-            degrees += 360;
-        }
-        return degrees;
-    }
 
 
     private final Vec3d lastVelocity = Vec3d.ZERO;
 
-    public void customRotate(ComputerDroneEntity entity, float counter) {
-        Drone.pitch = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.pitch), entity.getPitch(), 0.3));
-        Drone.yaw = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.yaw), entity.getYaw(), 0.3));
+    public void customRotate(ComputerDroneEntity entity, float counter, float pitch, float yaw) {
+        //Drone.pitch = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.pitch), entity.getPitch(), 0.3));
+        //Drone.yaw = (float) Math.toRadians(lerpDegrees(Math.toDegrees(Drone.yaw), entity.getYaw(), 0.3));
+        Drone.pitch = (float) Math.toRadians(pitch);
+        Drone.yaw = (float) Math.toRadians(yaw);
         // Rotate propellers
         float propellerSpeed = ((float)entity.getVelocity().length() + 1) * (entity.isOn() ? 1 : 0);
         Propeller.yaw = counter * propellerSpeed;

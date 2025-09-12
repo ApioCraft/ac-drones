@@ -21,12 +21,14 @@
 package net.apiocraft.acdrones.client.model;
 
 import net.apiocraft.acdrones.accessories.droneClaw.DroneClawAccessory;
+import net.minecraft.block.Block;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.shape.VoxelShape;
 
 public class DroneClawModel {
     private final ModelPart hand2;
@@ -78,7 +80,17 @@ public class DroneClawModel {
     public void rotato(DroneClawAccessory accessory) {
         if (accessory.isCarryingBlock()) {
             var block = accessory.getCarriedBlock();
-            var collisionShape = block.getCollisionShape(null, null, null);
+            VoxelShape collisionShape = null;
+            try {
+                block.getCollisionShape(null, null, null);
+            } catch (Exception e) {
+                // Ignore exceptions when getting the collision shape
+            }
+
+            if (collisionShape == null || collisionShape.isEmpty()) {
+                // Default to a full block shape if the collision shape is null or empty
+                collisionShape = Block.createCuboidShape(0, 0, 0, 16, 16, 16);
+            }
 
             // Calculate block dimensions
             float blockWidth = (float) (collisionShape.getMax(Direction.Axis.X) - collisionShape.getMin(Direction.Axis.X));
