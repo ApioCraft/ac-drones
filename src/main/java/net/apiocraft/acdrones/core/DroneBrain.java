@@ -86,18 +86,18 @@ public class DroneBrain implements IDroneAccess {
 
         @Override
         public MethodResult resume(Object[] response) throws LuaException {
-            System.out.println("Response: " + Arrays.toString(response));
-            System.out.println("ID: " + id);
-            System.out.println("Response length: " + response.length);
-            System.out.println("Response[1] instanceof Number: " + (response[1] instanceof Number));
-            System.out.println("Response[2] instanceof Boolean: " + (response[2] instanceof Boolean));
+            
+            
+            
+            
+            
             if (response.length < 3 || !(response[1] instanceof Number id) || !(response[2] instanceof Boolean)) {
                 return eventPull;
             }
 
             if (id.intValue() != this.id) return eventPull;
 
-            System.out.println("ID matches");
+            
 
             return MethodResult.of(Arrays.copyOfRange(response, 2, response.length));
         }
@@ -205,13 +205,14 @@ public class DroneBrain implements IDroneAccess {
             }
 
             if(computer != null && !computer.getMainThreadMonitor().canWork()) {
-                System.out.println("Cannot work");
+                
                 return;
             }
 
-            //System.out.println(currentCommandResultPromise);
+            //
 
             if (checkWorkCommand(computer)) return; // if its still in progress, we don't wanna run more
+            computer.setPosition(getLevel(), drone.getBlockPos());
 
             var command = commandQueue.poll();
             if(command == null) return;
@@ -225,7 +226,7 @@ public class DroneBrain implements IDroneAccess {
             if(computer == null) return;
             computer.getMainThreadMonitor().trackWork(end - start, TimeUnit.NANOSECONDS);
             checkWorkCommand(computer);
-            computer.setPosition(getLevel(), drone.getBlockPos());
+
         }
     }
 
