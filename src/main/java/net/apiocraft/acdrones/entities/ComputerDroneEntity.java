@@ -575,7 +575,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
         }
     }
 
-    public void setOnwer(UUID owner) {
+    public void setOwner(UUID owner) {
         this.owner = owner;
     }
 
