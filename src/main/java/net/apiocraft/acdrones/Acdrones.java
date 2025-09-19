@@ -153,7 +153,7 @@ public class Acdrones implements ModInitializer {
         });
 
 
-//        System.out.println(DroneAccessoryRegistry.DRONE_ACCESSORIES.getId(DroneAccessoryRegistry.DRONE_ACCESSORY_CLAW));
+//        
     }
 
     public static MinecraftServer getServer() {

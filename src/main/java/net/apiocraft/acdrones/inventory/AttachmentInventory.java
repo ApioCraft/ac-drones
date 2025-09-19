@@ -49,7 +49,7 @@ public class AttachmentInventory implements Inventory {
 
     @Override
     public ItemStack getStack(int slot) {
-        //System.out.println(drone.getAccessory());
+        //
         return drone.getAccessoryAttachments()[slot] == null ? ItemStack.EMPTY : DroneAccessoryRegistry.createItemStack(drone.getAccessoryAttachment(slot));
     }
 

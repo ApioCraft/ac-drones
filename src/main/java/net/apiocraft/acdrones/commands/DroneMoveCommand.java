@@ -61,7 +61,7 @@ public class DroneMoveCommand implements DroneCommand {
         Vec3d targetPosition = currentPosition.add(wantedDeltaMovement);
         // the percentage of the way we are already to the target
         double progress = 1-(currentPosition.distanceTo(targetPosition) / initialWantedDeltaMovement.length());
-        //System.out.println(progress);
+        //
         // we can use some kind of tweening
 
         if (progress < 0.5) {
@@ -77,11 +77,11 @@ public class DroneMoveCommand implements DroneCommand {
         }
 
         Vec3d move = targetPosition.subtract(currentPosition).normalize().multiply(speedPercent);
-        //System.out.println("Move: " + move);
+        //
 
         drone.setVelocity(move);
         wantedDeltaMovement = wantedDeltaMovement.subtract(currentPosition.subtract(lastPosition));
-        //System.out.println("Wanted: " + wantedDeltaMovement);
+        //
         var distance = wantedDeltaMovement.length();
         if(distance < 0.1) {
             drone.setVelocity(Vec3d.ZERO);

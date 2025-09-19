@@ -51,16 +51,16 @@ public class DroneItem extends Item implements IMedia {
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();
 
-        // System.out.println("DroneItem.useOnBlock");
+        // 
 
         if (!world.isClient) {
-            System.out.println("make an drone");
+            
             ServerWorld serverWorld = (ServerWorld) world;
             ComputerDroneEntity drone = Acdrones.COMPUTER_DRONE_ENTITY.create(serverWorld);
             if (context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()) != null) {
                 drone.setComputerId(context.getStack().get(ModRegistry.DataComponents.COMPUTER_ID.get()).id());
             }
-            System.out.println("drone has id too");
+            
             drone.setLabel(DataComponentUtil.getCustomName(context.getStack()));
             drone.refreshPositionAndAngles(context.getHitPos().x, context.getHitPos().y, context.getHitPos().z,
                     drone.getYaw(), drone.getPitch());
@@ -68,7 +68,7 @@ public class DroneItem extends Item implements IMedia {
             if(context.getPlayer() != null) {
                 drone.setOwner(context.getPlayer().getUuid());
             } else {
-                System.out.println("PLayer is null, drone will bypass claim permissions!!");
+                
             }
             if (serverWorld.spawnEntity(drone)) {
 

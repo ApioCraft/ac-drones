@@ -46,7 +46,7 @@ public class AccessoryInventory implements Inventory {
 
     @Override
     public ItemStack getStack(int slot) {
-        //System.out.println(drone.getAccessory());
+        //
         return drone.getAccessory() == null ? ItemStack.EMPTY : DroneAccessoryRegistry.createItemStack(drone.getAccessory());
     }
 
@@ -76,7 +76,7 @@ public class AccessoryInventory implements Inventory {
     @Override
     public void setStack(int slot, ItemStack stack) {
         if(slot == 0) {
-            System.out.println(stack.getItem().getClass());
+            
             if(DroneAccessoryRegistry.isAccessory(stack)) {
                 drone.getEntity().setAccessory(DroneAccessoryRegistry.createAccessory(stack));
             } else {

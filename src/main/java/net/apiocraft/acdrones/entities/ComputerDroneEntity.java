@@ -185,7 +185,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             ServerWorld serverWorld = (ServerWorld) getWorld();
             ChunkPos chunkPos = new ChunkPos(getBlockPos());
             if(!chunkPos.equals(lastChunkPos)) {
-                System.out.println("Supposedly loading chunk");
+                
 
                 // first load our chunk to not get unlodead
                 serverWorld.getChunkManager().addTicket(
@@ -209,7 +209,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
         }
 
-        //System.out.println(hasNoGravity());
+        //
         var movement = getMovement();
         move(MovementType.SELF, movement);
         updateDirection();
@@ -285,11 +285,11 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
-        System.out.println("Interacting with drone");
+        
         if (!player.isSneaking()) {
             if (!getWorld().isClient()) {
                 if(CommonProtection.canInteractEntity(getWorld(), this, player.getGameProfile(), player)) {
-                    System.out.println("not on client, so we turn on and open gui");
+                    
                     var serverComputer = createServerComputer();
                     serverComputer.turnOn();
                     //player.openHandledScreen(this);
@@ -298,7 +298,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
             }
             return ActionResult.SUCCESS;
         } else {
-            System.out.println("not sneaking");
+            
             // is the player riding already? if so, open gui
             if (player.hasVehicle()) {
                 if (!getWorld().isClient()) {
@@ -439,16 +439,16 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
 
         var computer = ServerContext.get(server).registry().get(instanceID);
         if (computer == null) {
-            System.out.println("Creating new computer bc no exist");
+            
             if (computerId < 0) {
-                System.out.println("Creating new computer id");
+                
                 computerId = ComputerCraftAPI.createUniqueNumberedSaveDir(server, IDAssigner.COMPUTER);
             }
 
             computer = createComputer(computerId);
-            System.out.println("putting instance id");
+            
             instanceID = computer.register();
-            System.out.println(instanceID);
+            
             itsBrandNew = true;
             changed = true;
         }

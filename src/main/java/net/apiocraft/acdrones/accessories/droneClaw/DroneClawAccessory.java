@@ -200,8 +200,8 @@ public class DroneClawAccessory implements IDroneAccessory {
     }
 
     public boolean isCarryingBlock() {
-//        System.out.println(!carryData.isEmpty());
-//        System.out.println(carryData.getByte("carryType") == (byte) 0);
+//        
+//        
         return !carryData.isEmpty() && carryData.getByte("carryType") == (byte) 0;
     }
 

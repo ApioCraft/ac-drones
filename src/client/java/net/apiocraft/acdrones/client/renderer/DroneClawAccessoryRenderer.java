@@ -55,7 +55,7 @@ public class DroneClawAccessoryRenderer implements IAccessoryRenderer {
         //this.base.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(Identifier.of(Acdrones.MOD_ID, "textures/gui/dronegui.png"))), light, OverlayTexture.DEFAULT_UV);
         DroneClawAccessory accessory = (DroneClawAccessory) entity.getAccessory();
         if(accessory == null) return;
-        //System.out.println(accessory.getCarryData());
+        //
 
         model.rotato(accessory);
 
@@ -76,7 +76,7 @@ public class DroneClawAccessoryRenderer implements IAccessoryRenderer {
             }
 
             BakedModel model = blockRenderManager.getModel(state);
-            //System.out.println("hello");
+            //
 
             matrices.push();
             matrices.translate(-0.5, -0.8-0.5, -0.5);
