@@ -68,6 +68,11 @@ public class DroneItem extends Item implements IMedia {
             drone.refreshPositionAndAngles(context.getHitPos().x, context.getHitPos().y, context.getHitPos().z,
                     drone.getYaw(), drone.getPitch());
             drone.setVelocity(0, 0, 0);
+            if(context.getPlayer() != null) {
+                drone.setOwner(context.getPlayer().getUuid());
+            } else {
+                System.out.println("PLayer is null, drone will bypass claim permissions!!");
+            }
             if (serverWorld.spawnEntity(drone)) {
 
                 context.getStack().decrement(1);
