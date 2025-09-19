@@ -352,7 +352,7 @@ public class ComputerDroneEntity extends Entity implements NamedScreenHandlerFac
                 ItemScatterer.spawn(getWorld(), getBlockPos(), getAccessoryInventory());
                 ItemStack i = new ItemStack(Acdrones.COMPUTER_DRONE_ITEM);
                 //i.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerId));
-                NbtCompound nbt = i.getNbt();
+                NbtCompound nbt = i.getNbt() != null ? i.getNbt() : new NbtCompound();
                 nbt.put("computer_id", NbtInt.of(computerId));
                 i.setNbt(nbt);
 
