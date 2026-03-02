@@ -75,9 +75,13 @@ public class DroneUseCommand implements DroneCommand {
         var replaceable = blockState.canReplace(context);
         if (!allowReplacing && replaceable) return false;
 
-        // Check spawn protection
-        var isProtected = CommonProtection.canPlaceBlock(world, position, drone.getEntity().getOwner() != null ? world.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null) : null, null);
-        return !isProtected;
+        // Whoops! The check was inverted!
+        return CommonProtection.canPlaceBlock(
+                world,
+                position,
+                drone.getEntity().getOwner() != null ? world.getServer().getUserCache().getByUuid(drone.getEntity().getOwner()).orElse(null) : null,
+                null
+        );
     }
 
     @Override
